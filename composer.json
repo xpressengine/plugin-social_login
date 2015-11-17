@@ -1,0 +1,44 @@
+{
+  "name": "xpressengine-plugin/social_login",
+  "description": "social login for xpressengine",
+  "keywords": [
+    "xpressengine",
+    "social",
+    "login",
+    "sns"
+  ],
+  "version": "1.0.0",
+  "support": {
+    "email": "developers@xpressengine.com"
+  },
+  "authors": [
+    {
+      "name": "XE Team",
+      "email": "developers@xpressengine.com",
+      "homepage": "http://xpressengine.io",
+      "role": "Developer"
+    }
+  ],
+  "license": "LGPL-2.0",
+  "type": "xpressengine-plugin",
+  "extra": {
+    "xpressengine": {
+      "title": "SocialLogin",
+      "component": {
+        "member/auth/skin/social_login@auth": {
+          "class": "\\Xpressengine\\Plugins\\SocialLogin\\Skins\\AuthSkin",
+          "name": "소셜로그인 스킨",
+          "description": "소셜로그인 스킨입니다. 기본 인증 스킨을 그대로 사용하며, 로그인 페이지에 소셜로그인 버튼을 보여줍니다."
+        }
+      }
+    }
+  },
+  "require": {
+    "laravel/socialite": "2.0.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Xpressengine\\Plugins\\SocialLogin\\": "src/"
+    }
+  }
+}
