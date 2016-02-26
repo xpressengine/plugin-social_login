@@ -3,8 +3,8 @@ namespace Xpressengine\Plugins\SocialLogin;
 
 use Illuminate\Http\Request;
 use Route;
-use Xpressengine\Member\Entities\MemberEntityInterface;
 use Xpressengine\Plugin\AbstractPlugin;
+use Xpressengine\User\UserInterface;
 
 class Plugin extends AbstractPlugin
 {
@@ -73,7 +73,7 @@ class Plugin extends AbstractPlugin
         );
     }
 
-    protected function getMemberSettingSection(MemberEntityInterface $member)
+    protected function getMemberSettingSection(UserInterface $member)
     {
         $providers = $this->providers;
         $accountList = data_get($member, 'accounts', []);

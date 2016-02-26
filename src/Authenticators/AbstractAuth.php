@@ -17,11 +17,9 @@ use Auth;
 use Laravel\Socialite\SocialiteManager;
 use Member;
 use XeDB;
-use Xpressengine\Member\Entities\Database\AccountEntity;
-use Xpressengine\Member\Entities\Database\MailEntity;
 use Xpressengine\Member\Exceptions\JoinNotAllowedException;
-use Xpressengine\Member\Rating;
 use Xpressengine\Support\Exceptions\XpressengineException;
+use Xpressengine\User\Rating;
 use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserInterface;
 
