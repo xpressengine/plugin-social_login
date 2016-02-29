@@ -13,12 +13,12 @@
  */
 namespace Xpressengine\Plugins\SocialLogin\Authenticators;
 
+use App\Facades\XeUser;
 use Auth;
 use Laravel\Socialite\SocialiteManager;
-use Member;
 use XeDB;
-use Xpressengine\Member\Exceptions\JoinNotAllowedException;
 use Xpressengine\Support\Exceptions\XpressengineException;
+use Xpressengine\User\Exceptions\JoinNotAllowedException;
 use Xpressengine\User\Rating;
 use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserInterface;
@@ -82,7 +82,7 @@ class AbstractAuth
         }
 
         // check user's status
-        if ($user->getStatus() === Member::STATUS_ACTIVATED) {
+        if ($user->getStatus() === XeUser::STATUS_ACTIVATED) {
             $this->loginMember($user);
         } else {
             return redirect()->route('login')->with('alert', ['type' => 'danger', 'message' => '사용중지된 계정입니다.']);
@@ -118,7 +118,7 @@ class AbstractAuth
 
         $account = $user->getAccountByProvider($this->provider);
 
-        \Member::deleteAccount($account);
+        \XeUser::deleteAccount($account);
     }
 
     private function authorization()
@@ -289,7 +289,7 @@ class AbstractAuth
         return [
             'email' => $userInfo->email,
             'displayName' => $userInfo->nickname ?: $userInfo->name,
-            'status' => Member::STATUS_ACTIVATED,
+            'status' => \XeUser::STATUS_ACTIVATED,
             'rating' => Rating::MEMBER
         ];
     }
