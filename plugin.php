@@ -133,7 +133,7 @@ class Plugin extends AbstractPlugin
                     [
                         'as' => 'social_login::settings',
                         'uses' => function () {
-                            return \Presenter::make('social_login::tpl.setting');
+                            return \XePresenter::make('social_login::tpl.setting');
                         },
                         'permission' => 'member.list',
                         'settings_menu' => 'member.social_login@default'
