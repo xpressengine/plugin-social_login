@@ -14,14 +14,14 @@
                             <i class="xi-{{ $provider }}"></i>계정에 연결되어 있습니다.
                         </div>
                         <div class="setting_right">
-                            <button data-link="{{ route("social_login::disconnect.$provider") }}" class="__xe_socialDisconnect btn_txt">연결해제</button>
+                            <button data-link="{{ route("social_login::disconnect.$provider") }}" class="__xe_socialDisconnect xe-button-text">연결해제</button>
                         </div>
                     @else
                         <div class="setting_left">
                             <i class="xi-{{ $provider }}"></i>{{ $info['title'] }} 계정에 연결할 수 있습니다.
                         </div>
                         <div class="setting_right">
-                            <button data-link="{{ route("social_login::connect.$provider") }}" class="__xe_socialConnect btn_txt">연결</button>
+                            <button data-link="{{ route("social_login::connect.$provider") }}" class="__xe_socialConnect xe-button-text">연결</button>
                         </div>
                     @endif
                 </div>

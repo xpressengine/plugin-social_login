@@ -13,7 +13,7 @@
             @if(isset($providers['github']))<li class="sns_github"><a href="{{ route($plugin->getIdWith('connect.github')) }}"><i class="xi-github"></i>{{ $providers['github']['title'] }}계정으로 가입</a></li>@endif
             @if(isset($providers['line']))<li class="sns_line"><a href="{{ route($plugin->getIdWith('connect.line')) }}"><i class="xi-line-messenger"></i>{{ $providers['line']['title'] }}계정으로 가입</a></li>@endif
         </ul>
-        <a href="{{ route('auth.register', ['use_email']) }}" class="btn_txt">이메일로 가입하기</a>
+        <a href="{{ route('auth.register', ['use_email']) }}" class="xe-button-text">이메일로 가입하기</a>
     </div>
 </div>
 <!--//소셜로그인-->
