@@ -87,7 +87,7 @@ class Plugin extends AbstractPlugin
         app('xe.frontend')->html('social_login::addlink')->content(
             "
             <script>
-            XE.$(function () {
+            $(function () {
                 $('.__xe_socialConnect').click(function(){
                     window.open($(this).data('link'), 'social_login_connect',\"width=600,height=400,scrollbars=no\");
                 });
