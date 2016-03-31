@@ -62,7 +62,7 @@ class Plugin extends AbstractPlugin
     {
         $plugin = $this;
         app('xe.register')->push(
-            'member/settings/section',
+            'user/settings/section',
             'social_login@section',
             [
                 'title' => '외부 로그인 설정',
