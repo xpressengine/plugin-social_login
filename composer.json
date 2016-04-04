@@ -24,6 +24,7 @@
   "extra": {
     "xpressengine": {
       "title": "SocialLogin",
+      "icon": "icon.png",
       "component": {
         "member/auth/skin/social_login@auth": {
           "class": "\\Xpressengine\\Plugins\\SocialLogin\\Skins\\AuthSkin",
