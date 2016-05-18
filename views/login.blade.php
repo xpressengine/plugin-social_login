@@ -13,7 +13,7 @@
             @if(isset($providers['github']))<li class="sns-github"><a href="{{ route($plugin->getIdWith('connect.github')) }}"><i class="xi-github"></i>{{ $providers['github']['title'] }}계정으로 로그인</a></li>@endif
             @if(isset($providers['line']))<li class="sns-line"><a href="{{ route($plugin->getIdWith('connect.line')) }}"><i class="xi-line-messenger"></i>{{ $providers['line']['title'] }}계정으로 로그인</a></li>@endif
         </ul>
-        <a href="#showEmailLogin" onclick="$('.__xe_memberLogin').toggle();return false;" class="xe-btn xe-btn-text">이메일로 로그인하기</a>
+        <a href="#showEmailLogin" onclick="$('.__xe_memberLogin').toggle();return false;" class="xe-btn xe-btn-link">이메일로 로그인하기</a>
     </div>
 </div>
 <!--//소셜로그인-->
@@ -28,16 +28,16 @@
             <legend>로그인</legend>
             <div class="auth-group {{--wrong--}}">
                 <label for="name" class="sr-only">이메일 주소 / 사용자 이름</label>
-                <input name="email" type="text" id="name" class="xe-input-text" value="{{ old('email') }}" placeholder="이메일 주소 / 사용자 이름">
+                <input name="email" type="text" id="name" class="xe-form-control" value="{{ old('email') }}" placeholder="이메일 주소 / 사용자 이름">
                 {{--<em class="txt_message">잘못된 이메일 주소입니다. 이메일 주소를 확인하시고 다시 입력해주세요.</em>--}}
             </div>
             <div class="auth-group">
                 <label for="pwd" class="sr-only">비밀번호</label>
-                <input name="password" type="password" id="pwd" class="xe-input-text" placeholder="비밀번호">
+                <input name="password" type="password" id="pwd" class="xe-form-control" placeholder="비밀번호">
             </div>
-            <div class="xe-input-group">
+            <div class="xe-form-group">
                 <!--[D] 로그인 유지가 기본인 경우 inpuit에 "disabled="disabled"추가-->
-                <!--[D] 다른 xe-input-group과 다르게 label(for=""), input(id="")  같은 값으로 매칭-->
+                <!--[D] 다른 xe-form-group과 다르게 label(for=""), input(id="")  같은 값으로 매칭-->
                 <input type="checkbox" id="chk" name="remember">
                 <label for="chk" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="__xe_infoRemember" data-target="#__xe_infoRemember"><span>로그인 유지하기</span></label>
                 <a href="{{ route('auth.reset') }}" class="pull-right">암호를 잊었습니까?</a>
@@ -49,7 +49,7 @@
 
             {{-- recaptcha--}}
 
-            <button type="submit" class="xe-btn xe-btn-blue">로그인</button>
+            <button type="submit" class="xe-btn xe-btn-primary">로그인</button>
         </fieldset>
     </form>
     {{--<div class="hr">
