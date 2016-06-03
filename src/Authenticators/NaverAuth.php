@@ -2,15 +2,15 @@
 /**
  *  This file is part of the Xpressengine package.
  *
- * PHP version 5
- *
  * @category
  * @package     Xpressengine\
- * @author      XE Team (khongchi) <khongchi@xpressengine.com>
- * @copyright   2000-2014 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL
- * @link        http://www.xpressengine.com
+ * @author      XE Developers (khongchi) <khongchi@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER Crop. <http://www.navercorp.com>
+ * @license     LGPL-2.1
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ * @link        https://xpressengine.io
  */
+
 namespace Xpressengine\Plugins\SocialLogin\Authenticators;
 
 use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
@@ -18,9 +18,6 @@ use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
 /**
  * @category
  * @package     Xpressengine\Plugins\SocialLogin\Authenticator
- * @author      XE Team (khongchi) <khongchi@xpressengine.com>
- * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL
- * @link        http://www.xpressengine.com
  */
 class NaverAuth extends AbstractAuth
 {
