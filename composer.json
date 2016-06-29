@@ -34,11 +34,6 @@
       }
     }
   },
-  "replace": {
-    "illuminate/contracts": "~5.0",
-    "illuminate/http": "~5.0",
-    "illuminate/support": "~5.0"
-  },
   "require": {
     "laravel/socialite": "2.0.5"
   },
