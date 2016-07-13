@@ -49,7 +49,7 @@ class AuthSkin extends CoreSkin
         $use_email = app('request')->get('use_email', false);
 
         if ($use_email !== false) {
-            return $this->renderBlade();
+            return parent::register();
         }
 
         return view($plugin->getIdWith('views.register'), compact('providers'));
