@@ -14,7 +14,7 @@
 namespace Xpressengine\Plugins\SocialLogin\Skins;
 
 use Illuminate\Contracts\Support\Renderable;
-use Xpressengine\Skins\Member\AuthSkin as CoreSkin;
+use App\Skins\Member\AuthSkin as CoreSkin;
 use Xpressengine\Plugins\SocialLogin\Plugin;
 
 /**
