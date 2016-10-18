@@ -171,6 +171,11 @@ class AbstractAuth
                 // force email to be confirmed
                 $userData['emailConfirmed'] = true;
 
+                // add group
+                $config = app('xe.config')->get('user.join');
+                $group = $config->get('joinGroup');
+                $userData['groupId'] = [$group];
+
                 $user = $handler->create($userData);
 
             } elseif ($existingAccount !== null && $existingEmail === null) {
@@ -298,7 +303,7 @@ class AbstractAuth
             'accountId' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => $userInfo->tokenSecret,
+            'tokenSecret' => data_get($userInfo, 'tokenSecret'),
             'data' => json_encode($userInfo->user)
         ];
     }
