@@ -20,5 +20,5 @@
 
 <!-- 로그인 폼  -->
 <div class="__xe_memberLogin" style="display: none;">
-    @include('member.skins.default.auth.login')
+    @include('user.skins.default.auth.login')
 </div>

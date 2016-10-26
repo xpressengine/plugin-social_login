@@ -56,7 +56,7 @@ class Plugin extends AbstractPlugin
     {
         app('xe.register')->push(
             'settings/menu',
-            'member.social_login@default',
+            'user.social_login@default',
             [
                 'title' => '소셜로그인',
                 'description' => '소셜로그인을 설정하는 방법을 안내합니다.',
@@ -143,8 +143,8 @@ class Plugin extends AbstractPlugin
                         'uses' => function () {
                             return \XePresenter::make('social_login::tpl.setting');
                         },
-                        'permission' => 'member.list',
-                        'settings_menu' => 'member.social_login@default'
+                        'permission' => 'user.list',
+                        'settings_menu' => 'user.social_login@default'
                     ]
                 );
             }
