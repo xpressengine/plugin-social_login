@@ -1,30 +1,26 @@
-
 <div class="panel">
-    <div class="panel-heading">
-        <p>이 플러그인에서는 네이버, Github, Google, Facebook, Twitter의 소셜로그인 기능을 제공합니다.<br>
-            소셜로그인을 사용하기 위해서는 .env 파일에 소셜로그인 설정정보를 아래와 같이 설정하셔야 합니다. 각 소셜로그인의 설정정보는 해당 제공사의 API 안내 문서를 참고하십시오.</p>
-    </div>
     <div class="panel-body">
-        <div class="well">
-            # Github<br>
-            SERVICE_GITHUB_CLIENTID=<br>
-            SERVICE_GITHUB_CLIENTSECRET=<br>
-            <br>
-            # Facebook<br>
-            SERVICE_FACEBOOK_CLIENTID=<br>
-            SERVICE_FACEBOOK_CLIENTSECRET=<br>
-            <br>
-            # Naver<br>
-            SERVICE_NAVER_CLIENTID=<br>
-            SERVICE_NAVER_CLIENTSECRET=<br>
-            <br>
-            # Twitter<br>
-            SERVICE_TWITTER_CLIENTID=<br>
-            SERVICE_TWITTER_CLIENTSECRET=<br>
-            <br>
-            # Google<br>
-            SERVICE_GOOGLE_CLIENTID=<br>
-            SERVICE_GOOGLE_CLIENTSECRET=<br>
+
+        <p>소셜로그인 플러그인은 Naver, Github, Google, Facebook, Twitter 서비스의 OAuth 인증을 사용하여 사이트에 로그인/가입 할 수 있도록 도와줍니다.
+            소셜로그인을 사용하기 위해서는 먼저 각 인증 서비스의 어플리케이션 설정을 해야합니다. 그 다음 설정된 어플리케이션의 정보를 이 페이지에 입력하십시오.</p>
+        <div class="list-group">
+        @foreach(['github', 'facebook', 'naver', 'twitter', 'google'] as $provider)
+            <div class="list-group-item __xe_social_login {{ $provider }}">
+            @include('social_login::tpl.show', compact('provider', 'providers'))
+            </div>
+        @endforeach
         </div>
+
     </div>
 </div>
+
+{!! app('xe.frontend')->html('social_login.update')->content("
+<script>
+    $(function($) {
+        window.updateSocialLogin = function (data) {
+            XE.toast(data.type, data.message);
+            XE.page(data.url, '.__xe_social_login.'+data.provider);
+        };
+    });
+</script>
+")->load() !!}

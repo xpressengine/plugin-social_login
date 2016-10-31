@@ -4,7 +4,7 @@
     <h2>외부 로그인 연결</h2>
 
     @foreach($providers as $provider => $info)
-        @if(array_has($info, 'client_id', false))
+        @if(array_get($info, 'activate', false))
             <div class="setting-group">
 
                 <div class="setting-group-content">
@@ -15,14 +15,14 @@
                             <i class="xi-{{ $provider }}"></i>계정에 연결되어 있습니다.
                         </div>
                         <div class="setting-right">
-                            <button data-link="{{ route("social_login::disconnect.$provider") }}" class="__xe_socialDisconnect xe-btn xe-btn-text">연결해제</button>
+                            <button data-link="{{ route("social_login::disconnect", ['provider'=>$provider]) }}" class="__xe_socialDisconnect xe-btn xe-btn-text">연결해제</button>
                         </div>
                     @else
                         <div class="setting-left">
                             <i class="xi-{{ $provider }}"></i>{{ $info['title'] }} 계정에 연결할 수 있습니다.
                         </div>
                         <div class="setting-right">
-                            <button data-link="{{ route("social_login::connect.$provider") }}" class="__xe_socialConnect xe-btn xe-btn-text">연결</button>
+                            <button data-link="{{ route("social_login::connect", ['provider'=>$provider]) }}" class="__xe_socialConnect xe-btn xe-btn-text">연결</button>
                         </div>
                     @endif
                 </div>
