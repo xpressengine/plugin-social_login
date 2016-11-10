@@ -303,7 +303,7 @@ class AbstractAuth
             'accountId' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => data_get($userInfo, 'tokenSecret'),
+            'tokenSecret' => data_get($userInfo, 'tokenSecret', ''),
             'data' => json_encode($userInfo->user)
         ];
     }

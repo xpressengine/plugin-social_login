@@ -18,9 +18,54 @@ class Plugin extends AbstractPlugin
 {
     protected $providers = [];
 
+    public function install()
+    {
+        $providers = require __DIR__.'/option.php';
+
+        foreach ($providers as $provider => $info) {
+            if ($info['client_id']) {
+                $providers[$provider]['use'] = true;
+            } else {
+                $providers[$provider]['use'] = false;
+            }
+        }
+
+        app('xe.config')->set('social_login', [
+            'providers' => $providers
+        ]);
+    }
+    public function checkUpdated()
+    {
+        $config = app('xe.config')->get('social_login');
+        if($config === null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public function update()
+    {
+        $config = app('xe.config')->get('social_login');
+        $providers = require __DIR__.'/option.php';
+
+        foreach ($providers as $provider => $info) {
+            if ($info['client_id'] !== '') {
+                $providers[$provider]['activate'] = true;
+            } else {
+                $providers[$provider]['activate'] = false;
+            }
+        }
+
+        if($config === null) {
+            app('xe.config')->set('social_login', [
+                'providers' => $providers
+            ]);
+        }
+    }
+
     public function boot()
     {
-
         $this->providers = $this->resolveProviders();
 
         // register settings menu
@@ -36,7 +81,7 @@ class Plugin extends AbstractPlugin
         config(['services' => $this->providers]);
 
         foreach ($this->providers as $provider => $info) {
-            config(['services.'.$provider.'.redirect' => route('social_login::connect.'.$provider)]);
+            config(['services.'.$provider.'.redirect' => route('social_login::connect', ['provider' => $provider])]);
         }
     }
 
@@ -47,16 +92,16 @@ class Plugin extends AbstractPlugin
 
     private function route($providers)
     {
-        $this->routeSettings();
-        $this->routeConnect($providers);
-        $this->routeDisconnect($providers);
+        $this->routeSettings($providers);
+        $this->routeConnect();
+        $this->routeDisconnect();
     }
 
     private function registerSettingsMenu()
     {
         app('xe.register')->push(
             'settings/menu',
-            'member.social_login@default',
+            'user.social_login@default',
             [
                 'title' => '소셜로그인',
                 'description' => '소셜로그인을 설정하는 방법을 안내합니다.',
@@ -113,40 +158,60 @@ class Plugin extends AbstractPlugin
     private function resolveProviders()
     {
         // set config
-        $providers = require __DIR__.'/option.php';
-
-        $resolvedProvders = [];
-        foreach ($providers as $provider => $info) {
-            if ($info['client_id']) {
-                $resolvedProvders[$provider] = $info;
-            }
+        $config = app('xe.config')->get('social_login');
+        if($config === null) {
+            return [];
         }
-
-        return $resolvedProvders;
+        $providers = $config->get('providers');
+        return $providers;
     }
 
     /**
      * routeSettings
      *
-     * @return void
+     * @param $providers
      */
-    private function routeSettings()
+    private function routeSettings($providers)
     {
         // register setting page
         Route::settings(
             static::getId(),
-            function () {
+            function () use ($providers) {
                 Route::get(
                     '/',
                     [
                         'as' => 'social_login::settings',
-                        'uses' => function () {
-                            return \XePresenter::make('social_login::tpl.setting');
-                        },
-                        'permission' => 'member.list',
-                        'settings_menu' => 'member.social_login@default'
+                        'uses' => 'Xpressengine\Plugins\SocialLogin\Controllers\SettingsController@index',
+                        'permission' => 'user.setting',
+                        'settings_menu' => 'user.social_login@default'
                     ]
                 );
+                Route::group(['prefix'=>'providers', 'namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers'], function(){
+                    Route::get(
+                        '{provider}',
+                        [
+                            'as' => 'social_login::settings.provider.show',
+                            'uses' => 'SettingsController@show',
+                            'permission' => 'user.setting'
+                        ]
+                    );
+                    Route::get(
+                        '{provider}/edit',
+                        [
+                            'as' => 'social_login::settings.provider.edit',
+                            'uses' => 'SettingsController@edit',
+                            'permission' => 'user.setting'
+                        ]
+                    );
+                    Route::put(
+                        '{provider}',
+                        [
+                            'as' => 'social_login::settings.provider.update',
+                            'uses' => 'SettingsController@update',
+                            'permission' => 'user.setting'
+                        ]
+                    );
+                });
             }
         );
     }
@@ -154,39 +219,24 @@ class Plugin extends AbstractPlugin
     /**
      * routeLogin
      *
-     * @param $providers
-     *
      * @return void
      */
-    private function routeConnect($providers)
+    private function routeConnect()
     {
         Route::fixed(
             static::getId(),
-            function () use ($providers) {
-                // register each provider's connect page
+            function () {
                 Route::group(
-                    ['prefix' => 'login'],
-                    function () use ($providers) {
-                        // if a provider's client_id is setted, register a route for the provider
-                        foreach ($providers as $provider => $info) {
-                            if (array_has($info, 'client_id')) {
-                                Route::get(
-                                    $provider,
-                                    [
-                                        'as' => 'social_login::connect.'.$provider,
-                                        'uses' => function (Request $request) use ($provider) {
-                                            $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
-                                            $className = $namespace.studly_case($provider).'Auth';
-                                            $auth = new $className($provider);
-                                            $param = $auth->getCallbackParameter();
+                    ['prefix' => 'login', 'namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers'],
+                    function () {
 
-                                            $hasCode = $request->has($param);
-                                            return $auth->execute($hasCode);
-                                        }
-                                    ]
-                                );
-                            }
-                        }
+                        Route::get(
+                            '{provider}',
+                            [
+                                'as' => 'social_login::connect',
+                                'uses' => 'ConnectController@connect',
+                            ]
+                        );
                     }
                 );
             }
@@ -196,49 +246,24 @@ class Plugin extends AbstractPlugin
     /**
      * routeLogin
      *
-     * @param $providers
-     *
      * @return void
      */
-    private function routeDisconnect($providers)
+    private function routeDisconnect()
     {
         Route::fixed(
             static::getId(),
-            function () use ($providers) {
+            function () {
                 // register each provider's connect page
                 Route::group(
-                    ['prefix' => 'disconnect', 'middleware' => 'auth'],
-                    function () use ($providers) {
-                        // if a provider's client_id is setted, register a route for the provider
-                        foreach ($providers as $provider => $info) {
-                            if (array_has($info, 'client_id')) {
-                                Route::get(
-                                    $provider,
-                                    [
-                                        'as' => 'social_login::disconnect.'.$provider,
-                                        'uses' => function (Request $request) use ($provider) {
-
-                                            // execute auth
-                                            $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
-                                            $className = $namespace.studly_case($provider).'Auth';
-                                            $auth = new $className($provider);
-                                            $param = $auth->getCallbackParameter();
-
-                                            $hasCode = $request->has($param);
-                                            $auth->disconnect($hasCode);
-
-                                            return redirect()->back()->with(
-                                                'alert',
-                                                [
-                                                    'type' => 'success',
-                                                    'message' => '연결해제 되었습니다'
-                                                ]
-                                            );
-                                        }
-                                    ]
-                                );
-                            }
-                        }
+                    ['prefix' => 'disconnect', 'middleware' => 'auth', 'namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers'],
+                    function () {
+                        Route::get(
+                            '{provider}',
+                            [
+                                'as' => 'social_login::disconnect',
+                                'uses' => 'ConnectController@disconnect',
+                            ]
+                        );
                     }
                 );
             }
