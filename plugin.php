@@ -24,9 +24,9 @@ class Plugin extends AbstractPlugin
 
         foreach ($providers as $provider => $info) {
             if ($info['client_id']) {
-                $providers[$provider]['use'] = true;
+                $providers[$provider]['activate'] = true;
             } else {
-                $providers[$provider]['use'] = false;
+                $providers[$provider]['activate'] = false;
             }
         }
 
@@ -39,9 +39,10 @@ class Plugin extends AbstractPlugin
         $config = app('xe.config')->get('social_login');
         if($config === null) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
+
     }
 
     public function update()
@@ -163,6 +164,17 @@ class Plugin extends AbstractPlugin
             return [];
         }
         $providers = $config->get('providers');
+
+        foreach ($providers as $provider => $info) {
+            if(isset($info['use'])) {
+                $info['activate'] = $info['use'];
+                unset($info['use']);
+                $providers[$provider] = $info;
+            }
+        }
+
+        app('xe.config')->setVal('social_login.providers', $providers);
+
         return $providers;
     }
 
