@@ -283,7 +283,7 @@ class AbstractAuth
      */
     protected function getConfig($provider)
     {
-        return config('services.'.$provider);
+        return config('services.social_login.'.$provider);
     }
 
     private function resolveUserInfo($userInfo)
