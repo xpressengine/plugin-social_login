@@ -79,11 +79,13 @@ class Plugin extends AbstractPlugin
         $this->route($this->providers);
 
         // set config for redirect
-        config(['services' => $this->providers]);
 
         foreach ($this->providers as $provider => $info) {
-            config(['services.'.$provider.'.redirect' => route('social_login::connect', ['provider' => $provider])]);
+            array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
+            config(['services.'.$provider => $info]);
         }
+
+        dd(config('services'));
     }
 
     public function getProviders()
