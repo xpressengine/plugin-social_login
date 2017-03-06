@@ -84,8 +84,6 @@ class Plugin extends AbstractPlugin
             array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
             config(['services.'.$provider => $info]);
         }
-
-        dd(config('services'));
     }
 
     public function getProviders()
