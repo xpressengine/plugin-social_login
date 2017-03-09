@@ -47,9 +47,9 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
 
         $response = $this->getHttpClient()->get(
             $this->getTokenUrl(), [
-            'headers' => ['Accept' => 'application/json'],
-            'query' => $query,
-        ]
+                'headers' => ['Accept' => 'application/json'],
+                'query' => $query,
+            ]
         );
 
         return $this->parseAccessToken($response->getBody());
