@@ -42,6 +42,11 @@ class AbstractAuth
     {
     }
 
+    /**
+     * getCallbackParameter
+     *
+     * @return string
+     */
     public function getCallbackParameter()
     {
         return 'code';

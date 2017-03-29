@@ -10,19 +10,13 @@
 namespace Xpressengine\Plugins\SocialLogin\Providers;
 
 use Exception;
+use GuzzleHttp\ClientInterface;
 use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\User;
 
 class NaverProvider extends AbstractProvider implements ProviderInterface
 {
-
-    /**
-     * The scopes being requested.
-     *
-     * @var array
-     */
-    protected $scopes = [];
 
     /**
      * {@inheritdoc}
@@ -40,23 +34,32 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
         return 'https://nid.naver.com/oauth2.0/token';
     }
 
-    public function getAccessToken($code)
+    /**
+     * Get the access token response for the given code.
+     *
+     * @param  string  $code
+     * @return array
+     */
+    public function getAccessTokenResponse($code)
     {
         $query               = $this->getTokenFields($code);
         $query['grant_type'] = 'authorization_code';
 
         $response = $this->getHttpClient()->get(
             $this->getTokenUrl(), [
-                'headers' => ['Accept' => 'application/json'],
-                'query' => $query,
-            ]
+                                    'headers' => ['Accept' => 'application/json'],
+                                    'query' => $query,
+                                ]
         );
 
-        return $this->parseAccessToken($response->getBody());
+        return json_decode($response->getBody(), true);
     }
 
     /**
-     * {@inheritdoc}
+     * Get the raw user for the given access token.
+     *
+     * @param  string  $token
+     * @return array
      */
     protected function getUserByToken($token)
     {
@@ -94,18 +97,4 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
         );
     }
 
-    /**
-     * Get the default options for an HTTP request.
-     *
-     * @return array
-     */
-    protected function getRequestOptions($token)
-    {
-        return [
-            'headers' => [
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer '.$token,
-            ],
-        ];
-    }
 }

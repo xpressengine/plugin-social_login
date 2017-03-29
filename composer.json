@@ -35,7 +35,7 @@
     }
   },
   "require": {
-    "laravel/socialite": "2.0.5"
+    "laravel/socialite": "2.0.21"
   },
   "autoload": {
     "psr-4": {
