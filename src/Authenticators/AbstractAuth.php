@@ -308,7 +308,7 @@ class AbstractAuth
             'accountId' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => $userInfo->tokenSecret,
+            'tokenSecret' => isset($userInfo->tokenSecret) ? $userInfo->tokenSecret : '',
             'data' => json_encode($userInfo->user)
         ];
     }
