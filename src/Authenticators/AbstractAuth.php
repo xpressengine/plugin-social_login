@@ -101,7 +101,7 @@ class AbstractAuth
      * @return string
      * @throws \Exception
      */
-    private function connect($userInfo)
+    public function connect($userInfo)
     {
         $user = Auth::user();
         $this->connectToUser($user, $userInfo);
