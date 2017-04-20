@@ -50,7 +50,7 @@ class SettingsController extends Controller
         $providers = $this->plugin->getProviders();
 
         app('xe.frontend')->js(
-            ['assets/core/xe-ui-component/js/xe-form.js', 'assets/core/xe-ui-component/js/xe-page.js']
+            ['assets/core/xe-ui-component/js/xe-page.js', 'assets/core/xe-ui-component/js/xe-form.js']
         )->load();
         return \XePresenter::make('social_login::tpl.setting', compact('providers'));
     }

@@ -16,7 +16,6 @@ namespace Xpressengine\Plugins\SocialLogin\Controllers;
 use App\Http\Controllers\Controller;
 use XePresenter;
 use Xpressengine\Http\Request;
-use Xpressengine\Plugins\SocialLogin\Authenticators\AbstractAuth;
 use Xpressengine\Plugins\SocialLogin\Plugin;
 
 /**
@@ -46,7 +45,10 @@ class ConnectController extends Controller
         $providers = $this->plugin->getProviders();
         $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
         $className = $namespace.studly_case($provider).'Auth';
-        $auth = new $className($provider);
+
+        $proxyClass = app('xe.interception')->proxy($className, 'SocialLoginAuth');
+        
+        $auth = new $proxyClass($provider);
         $param = $auth->getCallbackParameter();
 
         $hasCode = $request->has($param);
@@ -58,7 +60,6 @@ class ConnectController extends Controller
         // execute auth
         $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
         $className = $namespace.studly_case($provider).'Auth';
-        /** @var AbstractAuth $auth */
         $auth = new $className($provider);
         $param = $auth->getCallbackParameter();
 
