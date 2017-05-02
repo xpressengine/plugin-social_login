@@ -37,7 +37,7 @@ class AuthSkin extends CoreSkin
         $plugin = app(Plugin::class);
         $providers = $plugin->getProviders();
 
-        return view($plugin->getIdWith('views.login'), $this->data, compact('providers'));
+        return view($plugin->view('views.login'), $this->data, compact('providers'));
     }
 
     protected function register()
@@ -52,7 +52,7 @@ class AuthSkin extends CoreSkin
             return parent::register();
         }
 
-        return view($plugin->getIdWith('views.register'), $this->data, compact('providers'));
+        return view($plugin->view('views.register'), $this->data, compact('providers'));
     }
 
 }
