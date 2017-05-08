@@ -134,7 +134,7 @@ class Plugin extends AbstractPlugin
             'user/settings/section',
             'social_login@section',
             [
-                'title' => '외부 로그인 설정',
+                'title' => '소셜 로그인 설정',
                 'content' => function ($member) use ($plugin) {
                     return $plugin->getMemberSettingSection($member);
                 }
@@ -145,7 +145,7 @@ class Plugin extends AbstractPlugin
     protected function registerForUserRegister()
     {
         app('xe.register')->push(
-            'user/register/section',
+            'user/register/guard',
             'social_login',
             function () {
                 $providers = $this->getProviders();
@@ -165,7 +165,7 @@ class Plugin extends AbstractPlugin
                 $email = $registerToken->email;
                 $displayName = $registerToken->displayName;
 
-                app('xe.frontend')->html('email.setter')->content("
+                app('xe.frontend')->html('social_login.register')->content("
                     <script>
                         $('input[name=email]').attr('readonly','readonly').val('{$email}');
                         $('input[name=displayName]').val('{$displayName}');
