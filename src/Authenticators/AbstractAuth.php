@@ -18,9 +18,6 @@ use Auth;
 use Laravel\Socialite\SocialiteManager;
 use XeDB;
 use Xpressengine\Support\Exceptions\XpressengineException;
-use Xpressengine\User\Exceptions\JoinNotAllowedException;
-use Xpressengine\User\Rating;
-use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserInterface;
 
 /**
@@ -91,12 +88,6 @@ class AbstractAuth
                 $token = app('xe.user')->storeRegisterToken('social_login', $info);
                 return redirect()->route('auth.register', ['token' => $token->id]);
             }
-
-        } catch (JoinNotAllowedException $e) {
-            return redirect()->route('login')->with(
-                'alert',
-                ['type' => 'danger', 'message' => '사이트 관리자가 회원가입을 허용하지 않습니다.']
-            );
         } catch (\Exception $e) {
             throw $e;
         }
@@ -235,31 +226,6 @@ class AbstractAuth
         return $user;
     }
 
-    //public function createUser($userInfo)
-    //{
-    //    // check joinable setting
-    //    $this->checkJoinable();
-    //
-    //    /** @var UserHandler $handler */
-    //    $handler = app('xe.user');
-    //
-    //    $userData = $this->resolveUserInfo($userInfo);
-    //    $accountData = $this->resolveAccountInfo($userInfo);
-    //
-    //    // resolve displayName
-    //    $userData['displayName'] = $this->resolveDisplayName($handler, $userData['displayName']);
-    //
-    //    // resolve account
-    //    $userData['account'] = $accountData;
-    //
-    //    // add group
-    //    $config = app('xe.config')->get('user.join');
-    //    $group = $config->get('joinGroup');
-    //    $userData['groupId'] = [$group];
-    //
-    //    $user = $handler->create($userData);
-    //}
-
     private function connectToUser($user, $userInfo)
     {
         $handler = app('xe.user');
@@ -357,14 +323,6 @@ class AbstractAuth
             } else {
                 return $name;
             }
-        }
-    }
-
-    protected function checkJoinable()
-    {
-        $config = app('xe.config')->getVal('user.join.joinable', false);
-        if ($config !== true) {
-            throw new JoinNotAllowedException();
         }
     }
 }
