@@ -85,7 +85,8 @@ class AbstractAuth
                     $info['tokenSecret'] = $userInfo->tokenSecret;
                 }
 
-                $token = app('xe.user')->storeRegisterToken('social_login', $info);
+                $token = app('xe.user.register.tokens')->create('social_login', $info);
+
                 return redirect()->route('auth.register', ['token' => $token->id]);
             }
         } catch (\Exception $e) {
@@ -174,12 +175,15 @@ class AbstractAuth
         ) : null;
 
         $user = null;
+
+        // when new user
+        if ($existingAccount === null && $existingEmail === null) {
+            return null;
+        }
+
         XeDB::beginTransaction();
         try {
-            // when new user
-            if ($existingAccount === null && $existingEmail === null) {
-                return null;
-            } elseif ($existingAccount !== null && $existingEmail === null) {
+            if ($existingAccount !== null && $existingEmail === null) {
 
                 // if email exists, insert email
                 if ($accountData['email'] !== null) {
@@ -306,8 +310,7 @@ class AbstractAuth
             'accountId' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => isset($userInfo->tokenSecret) ? $userInfo->tokenSecret : '',
-            'data' => json_encode($userInfo->user)
+            'tokenSecret' => isset($userInfo->tokenSecret) ? $userInfo->tokenSecret : ''
         ];
     }
 

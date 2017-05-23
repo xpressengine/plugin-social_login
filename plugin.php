@@ -169,6 +169,8 @@ class Plugin extends AbstractPlugin
                     <script>
                         $('input[name=email]').attr('readonly','readonly').val('{$email}');
                         $('input[name=displayName]').val('{$displayName}');
+                        $('input[name=password]').parent().remove();
+                        $('input[name=password_confirmation]').parent().remove();
                     </script>
                     ")->load();
 

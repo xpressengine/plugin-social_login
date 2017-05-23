@@ -57,8 +57,7 @@ class ConnectController extends Controller
         $auth = new $className($provider);
         $param = $auth->getCallbackParameter();
 
-        $hasCode = $request->has($param);
-        $auth->disconnect($hasCode);
+        $auth->disconnect();
 
         return redirect()->back()->with(
             'alert',
