@@ -19,8 +19,8 @@ use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
 
 /**
- * @category    WidgetPage
- * @package     Xpressengine\Plugins\WidgetPage\Controllers
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin\Controllers
  * @author      XE Team (developers) <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
  * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL

@@ -14,13 +14,12 @@
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
-use XePresenter;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
 
 /**
- * @category    WidgetPage
- * @package     Xpressengine\Plugins\WidgetPage\Controllers
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin\Controllers
  * @author      XE Team (developers) <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
  * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL
@@ -42,13 +41,8 @@ class ConnectController extends Controller
 
     public function connect(Request $request, $provider)
     {
-        $providers = $this->plugin->getProviders();
-        $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
-        $className = $namespace.studly_case($provider).'Auth';
+        $auth = $this->plugin->getAuthenticator($provider);
 
-        $proxyClass = app('xe.interception')->proxy($className, 'SocialLoginAuth');
-        
-        $auth = new $proxyClass($provider);
         $param = $auth->getCallbackParameter();
 
         $hasCode = $request->has($param);
@@ -63,8 +57,7 @@ class ConnectController extends Controller
         $auth = new $className($provider);
         $param = $auth->getCallbackParameter();
 
-        $hasCode = $request->has($param);
-        $auth->disconnect($hasCode);
+        $auth->disconnect();
 
         return redirect()->back()->with(
             'alert',

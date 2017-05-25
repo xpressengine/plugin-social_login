@@ -2,7 +2,7 @@
 <!--소셜로그인-->
 <div class="member __xe_memberLogin">
     <div class="auth-sns v2">
-        <h1>계정에 로그인</h1>
+        <h1>{{xe_trans('xe::doLogin')}}</h1>
         <ul>
             @foreach($providers as $provider => $info)
                 @if($info['activate'])<li class="sns-{{ $provider }}"><a href="{{ route('social_login::connect', ['provider'=>$provider]) }}"><i class="xi-{{ $provider }}"></i>{{ $info['title'] }}계정으로 로그인</a></li>@endif

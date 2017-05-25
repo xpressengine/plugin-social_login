@@ -11,7 +11,9 @@ namespace Xpressengine\Plugins\SocialLogin;
 
 use Illuminate\Http\Request;
 use Route;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Xpressengine\Plugin\AbstractPlugin;
+use Xpressengine\Plugins\SocialLogin\Authenticators\AbstractAuth;
 use Xpressengine\User\UserInterface;
 
 class Plugin extends AbstractPlugin
@@ -75,6 +77,8 @@ class Plugin extends AbstractPlugin
         // register member settings section
         $this->registerSection();
 
+        $this->registerForUserRegister();
+
         // register route
         $this->route($this->providers);
 
@@ -89,6 +93,17 @@ class Plugin extends AbstractPlugin
     public function getProviders()
     {
         return $this->providers;
+    }
+
+    public function getAuthenticator($provider)
+    {
+        $providers = $this->getProviders();
+        $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
+        $className = $namespace.studly_case($provider).'Auth';
+
+        $proxyClass = app('xe.interception')->proxy($className, 'SocialLoginAuth');
+
+        return new $proxyClass($provider);
     }
 
     private function route($providers)
@@ -119,12 +134,79 @@ class Plugin extends AbstractPlugin
             'user/settings/section',
             'social_login@section',
             [
-                'title' => '외부 로그인 설정',
+                'title' => '소셜 로그인 설정',
                 'content' => function ($member) use ($plugin) {
                     return $plugin->getMemberSettingSection($member);
                 }
             ]
         );
+    }
+
+    protected function registerForUserRegister()
+    {
+        app('xe.register')->push(
+            'user/register/guard',
+            'social_login',
+            function () {
+                $providers = $this->getProviders();
+                return view($this->view('views.register'), compact('providers'))->render();
+            }
+        );
+
+        app('xe.register')->push(
+            'user/register/form',
+            'social_login',
+            function ($registerToken) {
+                if ($registerToken->guard !== 'social_login') {
+                    return null;
+                }
+
+                $provider = $registerToken->provider;
+                $email = $registerToken->email;
+                $displayName = $registerToken->displayName;
+
+                app('xe.frontend')->html('social_login.register')->content("
+                    <script>
+                        $('input[name=email]').attr('readonly','readonly').val('{$email}');
+                        $('input[name=displayName]').val('{$displayName}');
+                        $('input[name=password]').parent().remove();
+                        $('input[name=password_confirmation]').parent().remove();
+                    </script>
+                    ")->load();
+
+                $providers = $this->getProviders();
+
+                return view($this->view('views.form'), compact('provider', 'providers'))->render();
+            }
+        );
+
+        intercept('XeUser@create', 'social_login@create', function($target, $data, $registerToken = null) {
+
+            if ($registerToken->guard !== 'social_login') {
+                return $target($data, $registerToken);
+            }
+
+            $provider = $registerToken->provider;
+            $token = $registerToken->token;
+            $tokenSecret = data_get($registerToken, 'tokenSecret');
+            $email = $registerToken->email;
+
+            if($email && $email !== $data['email']) {
+                throw new HttpException(400, '잘못된 이메일 정보입니다.');
+            }
+
+            /** @var AbstractAuth $auth */
+            $auth = $this->getAuthenticator($provider);
+            $userInfo = $auth->getAuthenticatedUser($token, $tokenSecret);
+
+            $userData = $auth->resolveUserInfo($userInfo);
+            $data['account'] = $userData['account'];
+
+            $user = $target($data, $registerToken);
+            return $user;
+        });
+
+
     }
 
     protected function getMemberSettingSection(UserInterface $member)

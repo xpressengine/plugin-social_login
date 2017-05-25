@@ -18,9 +18,6 @@ use Auth;
 use Laravel\Socialite\SocialiteManager;
 use XeDB;
 use Xpressengine\Support\Exceptions\XpressengineException;
-use Xpressengine\User\Exceptions\JoinNotAllowedException;
-use Xpressengine\User\Rating;
-use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserInterface;
 
 /**
@@ -70,15 +67,28 @@ class AbstractAuth
 
     public function login($userInfo)
     {
-
         // if authorized user info is not saved completely, save user info.
         try {
-            $user = $this->registerUser($userInfo);
-        } catch (JoinNotAllowedException $e) {
-            return redirect()->route('login')->with(
-                'alert',
-                ['type' => 'danger', 'message' => '사이트 관리자가 회원가입을 허용하지 않습니다.']
-            );
+            $handler = app('xe.user');
+            $userData = $this->resolveUserInfo($userInfo);
+            $user = $this->resolveUser($userData);
+
+            // if user not exist, redirect to register page after saving token.
+            if($user === null) {
+
+                $info = [];
+                $info['provider'] = $this->provider;
+                $info['email'] = $userInfo->email;
+                $info['displayName'] = $userData['displayName'];
+                $info['token'] = $userInfo->token;
+                if($userInfo instanceof \Laravel\Socialite\One\User) {
+                    $info['tokenSecret'] = $userInfo->tokenSecret;
+                }
+
+                $token = app('xe.user.register.tokens')->create('social_login', $info);
+
+                return redirect()->route('auth.register', ['token' => $token->id]);
+            }
         } catch (\Exception $e) {
             throw $e;
         }
@@ -120,7 +130,7 @@ class AbstractAuth
 
         $account = $user->getAccountByProvider($this->provider);
 
-        \XeUser::deleteAccount($account);
+        app('xe.user')->deleteAccount($account);
     }
 
     private function authorization()
@@ -128,74 +138,64 @@ class AbstractAuth
         return $this->socialite->driver($this->provider)->redirect();
     }
 
-
-    private function getAuthenticatedUser()
+    public function getAuthenticatedUser($token = null, $tokenSecret = null)
     {
-        return $this->socialite->driver($this->provider)->user();
+
+        $provider = $this->socialite->driver($this->provider);
+        if($token !== null) {
+
+            if ($provider instanceof \Laravel\Socialite\One\AbstractProvider) {
+                return $provider->userFromTokenAndSecret($token, $tokenSecret);
+            } else if ($provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
+                return $provider->userFromToken($token);
+            }
+        }
+        return $provider->user();
     }
 
     /**
      * register user
      *
-     * @param $userInfo
+     * @param $userData
      *
      * @return UserInterface
      * @throws \Exception
      */
-    private function registerUser($userInfo)
+    private function resolveUser($userData)
     {
-
-        /** @var UserHandler $handler */
         $handler = app('xe.user');
-
-        $userData = $this->resolveUserInfo($userInfo);
-        $accountData = $this->resolveAccountInfo($userInfo);
+        $accountData = $userData['account'];
 
         // retrieve account and email
         $existingAccount = $handler->accounts()
-            ->where(['provider' => $this->provider, 'accountId' => $userInfo->id])
+            ->where(['provider' => $this->provider, 'accountId' => $accountData['accountId']])
             ->first();
-        $existingEmail = data_get($userInfo, 'email', false) ? $handler->emails()->findByAddress(
-            $userInfo->email
+        $existingEmail = array_get($accountData, 'email', false) ? $handler->emails()->findByAddress(
+            $accountData['email']
         ) : null;
 
         $user = null;
+
+        // when new user
+        if ($existingAccount === null && $existingEmail === null) {
+            return null;
+        }
+
         XeDB::beginTransaction();
         try {
-            // when new user
-            if ($existingAccount === null && $existingEmail === null) {
-                // check joinable setting
-                $this->checkJoinable();
-
-                // resolve displayName
-                $userData['displayName'] = $this->resolveDisplayName($handler, $userData['displayName']);
-
-                // resolve account
-                $userData['account'] = $accountData;
-
-                // force email to be confirmed
-                $userData['emailConfirmed'] = true;
-
-                // add group
-                $config = app('xe.config')->get('user.join');
-                $group = $config->get('joinGroup');
-                $userData['groupId'] = [$group];
-
-                $user = $handler->create($userData);
-
-            } elseif ($existingAccount !== null && $existingEmail === null) {
+            if ($existingAccount !== null && $existingEmail === null) {
 
                 // if email exists, insert email
-                if ($userData['email'] !== null) {
-                    $existingEmail = $handler->emails()->create(
+                if ($accountData['email'] !== null) {
+                    $existingEmail = $handler->createEmail(
                         $existingAccount->user,
-                        ['address' => $userData['email']]
+                        ['address' => $accountData['email']]
                     );
                 }
             } elseif ($existingAccount === null && $existingEmail !== null) {
 
                 // if account is not exists, insert account
-                $existingAccount = $handler->accounts()->create($existingEmail->user, $accountData);
+                $existingAccount = $handler->createAccount($existingEmail->user, $accountData);
 
             } elseif ($existingAccount !== null && $existingEmail !== null) {
                 if ($existingAccount->userId !== $existingEmail->userId) {
@@ -209,7 +209,12 @@ class AbstractAuth
             // update token
             if ($existingAccount !== null && $existingAccount->token !== $accountData['token']) {
                 $existingAccount->token = $accountData['token'];
-                $existingAccount = $handler->accounts()->update($existingAccount);
+
+                if(array_has($accountData, 'tokenSecret')) {
+                    $existingAccount->tokenSecret = $accountData['tokenSecret'];
+                }
+
+                $existingAccount = $handler->updateAccount($existingAccount);
             }
         } catch (\Exception $e) {
             XeDB::rollback();
@@ -225,7 +230,6 @@ class AbstractAuth
         return $user;
     }
 
-
     private function connectToUser($user, $userInfo)
     {
         $handler = app('xe.user');
@@ -235,10 +239,9 @@ class AbstractAuth
             ->where(['provider' => $this->provider, 'accountId' => $userInfo->id])
             ->first();
 
+        $existingEmail = null;
         if (data_get($userInfo, 'email', false)) {
             $existingEmail = $handler->emails()->findByAddress($userInfo->email);
-        } else {
-            $existingEmail = null;
         }
 
         $id = $user->getId();
@@ -260,12 +263,10 @@ class AbstractAuth
         XeDB::beginTransaction();
         try {
             if ($existingAccount === null) {
-                $accountData = $this->resolveAccountInfo($userInfo);
-                $existingAccount = $handler->accounts()->create($user, $accountData);
+                $existingAccount = $handler->createAccount($user, $userData['account']);
             }
-
             if ($existingEmail === null) {
-                $existingEmail = $handler->emails()->create($user, ['address' => $userData['email']]);
+                $existingEmail = $handler->createEmail($user, ['address' => $userData['email']]);
             }
         } catch (\Exception $e) {
             XeDB::rollback();
@@ -291,13 +292,14 @@ class AbstractAuth
         return config('services.'.$provider);
     }
 
-    private function resolveUserInfo($userInfo)
+    public function resolveUserInfo($userInfo)
     {
+        $accountInfo = $this->resolveAccountInfo($userInfo);
+        $displayName = $this->resolveDisplayName($userInfo->nickname ?: $userInfo->name);
         return [
             'email' => $userInfo->email,
-            'displayName' => $userInfo->nickname ?: $userInfo->name,
-            'status' => \XeUser::STATUS_ACTIVATED,
-            'rating' => Rating::MEMBER
+            'displayName' => $displayName,
+            'account' => $accountInfo
         ];
     }
 
@@ -308,21 +310,14 @@ class AbstractAuth
             'accountId' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => isset($userInfo->tokenSecret) ? $userInfo->tokenSecret : '',
-            'data' => json_encode($userInfo->user)
+            'tokenSecret' => isset($userInfo->tokenSecret) ? $userInfo->tokenSecret : ''
         ];
     }
 
-    protected function checkJoinable()
+    private function resolveDisplayName($displayName)
     {
-        $config = app('xe.config')->getVal('user.join.joinable', false);
-        if ($config !== true) {
-            throw new JoinNotAllowedException();
-        }
-    }
+        $handler = app('xe.user');
 
-    private function resolveDisplayName(UserHandler $handler, $displayName)
-    {
         $i = 0;
         $name = $displayName;
         while (true) {
