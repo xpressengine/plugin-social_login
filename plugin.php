@@ -9,7 +9,6 @@
 
 namespace Xpressengine\Plugins\SocialLogin;
 
-use Illuminate\Http\Request;
 use Route;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Xpressengine\Plugin\AbstractPlugin;
@@ -182,25 +181,27 @@ class Plugin extends AbstractPlugin
 
         intercept('XeUser@create', 'social_login@create', function($target, $data, $registerToken = null) {
 
-            if ($registerToken->guard !== 'social_login') {
-                return $target($data, $registerToken);
+            if ($registerToken !== null) {
+                if ($registerToken->guard !== 'social_login') {
+                    return $target($data, $registerToken);
+                }
+
+                $provider = $registerToken->provider;
+                $token = $registerToken->token;
+                $tokenSecret = data_get($registerToken, 'tokenSecret');
+                $email = $registerToken->email;
+
+                if ($email && $email !== $data['email']) {
+                    throw new HttpException(400, '잘못된 이메일 정보입니다.');
+                }
+
+                /** @var AbstractAuth $auth */
+                $auth = $this->getAuthenticator($provider);
+                $userInfo = $auth->getAuthenticatedUser($token, $tokenSecret);
+
+                $userData = $auth->resolveUserInfo($userInfo);
+                $data['account'] = $userData['account'];
             }
-
-            $provider = $registerToken->provider;
-            $token = $registerToken->token;
-            $tokenSecret = data_get($registerToken, 'tokenSecret');
-            $email = $registerToken->email;
-
-            if($email && $email !== $data['email']) {
-                throw new HttpException(400, '잘못된 이메일 정보입니다.');
-            }
-
-            /** @var AbstractAuth $auth */
-            $auth = $this->getAuthenticator($provider);
-            $userInfo = $auth->getAuthenticatedUser($token, $tokenSecret);
-
-            $userData = $auth->resolveUserInfo($userInfo);
-            $data['account'] = $userData['account'];
 
             $user = $target($data, $registerToken);
             return $user;
