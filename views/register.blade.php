@@ -1,6 +1,6 @@
 <!--소셜로그인-->
 @inject('plugin', 'Xpressengine\Plugins\SocialLogin\Plugin')
-<h3>SNS 계정으로 회원가입하기</h3>
+<h4>SNS 계정으로 회원가입하기</h4>
 <div class="auth-sns v2">
     <ul>
     @foreach($providers as $provider => $info)

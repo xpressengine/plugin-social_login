@@ -73,7 +73,7 @@ class Plugin extends AbstractPlugin
         // register settings menu
         $this->registerSettingsMenu();
 
-        // register member settings section
+        // register user settings section
         $this->registerSection();
 
         $this->registerForUserRegister();
@@ -82,7 +82,6 @@ class Plugin extends AbstractPlugin
         $this->route($this->providers);
 
         // set config for redirect
-
         foreach ($this->providers as $provider => $info) {
             array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
             config(['services.'.$provider => $info]);
@@ -146,16 +145,23 @@ class Plugin extends AbstractPlugin
         app('xe.register')->push(
             'user/register/guard',
             'social_login',
-            function () {
+            [
+                'title' => '소셜로그인 인증',
+                'description' => '소셜로그인 인증을 선택할 수 있습니다.',
+                'render' => function () {
                 $providers = $this->getProviders();
                 return view($this->view('views.register'), compact('providers'))->render();
-            }
+            }]
         );
 
         app('xe.register')->push(
             'user/register/form',
             'social_login',
-            function ($registerToken) {
+            [
+                'title' => '소셜로그인',
+                'description' => '소셜로그인 인증을 사용했을 경우 출력되며, 사용한 소셜로그인을 보여줍니다.',
+                'forced' => true,
+                'render' => function ($registerToken) {
                 if ($registerToken->guard !== 'social_login') {
                     return null;
                 }
@@ -176,7 +182,7 @@ class Plugin extends AbstractPlugin
                 $providers = $this->getProviders();
 
                 return view($this->view('views.form'), compact('provider', 'providers'))->render();
-            }
+            }]
         );
 
         intercept('XeUser@create', 'social_login@create', function($target, $data, $registerToken = null) {
