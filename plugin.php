@@ -159,30 +159,33 @@ class Plugin extends AbstractPlugin
             'social_login',
             [
                 'title' => '소셜로그인',
-                'description' => '소셜로그인 인증을 사용했을 경우 출력되며, 사용한 소셜로그인을 보여줍니다.',
+                'description' => '소셜로그인 인증을 사용했을 경우 출력되며, 사용한 소셜로그인을 보여줍니다. 상단에 배치하시기 바랍니다.',
                 'forced' => true,
-                'render' => function ($registerToken) {
-                if ($registerToken->guard !== 'social_login') {
-                    return null;
-                }
+                'render' => function ($token) {
+                    if (data_get($token, 'guard') !== 'social_login') {
+                        return null;
+                    }
 
-                $provider = $registerToken->provider;
-                $email = $registerToken->email;
-                $displayName = $registerToken->displayName;
+                    $provider = $token->provider;
+                    $email = $token->email;
+                    $displayName = $token->displayName;
 
-                app('xe.frontend')->html('social_login.register')->content("
+                    app('xe.frontend')->html('social_login.register')->content(
+                        "
                     <script>
                         $('input[name=email]').attr('readonly','readonly').val('{$email}');
                         $('input[name=displayName]').val('{$displayName}');
                         $('input[name=password]').parent().remove();
                         $('input[name=password_confirmation]').parent().remove();
                     </script>
-                    ")->load();
+                    "
+                    )->load();
 
-                $providers = $this->getProviders();
+                    $providers = $this->getProviders();
 
-                return view($this->view('views.form'), compact('provider', 'providers'))->render();
-            }]
+                    return view($this->view('views.form'), compact('provider', 'providers'))->render();
+                }
+            ]
         );
 
         intercept('XeUser@create', 'social_login@create', function($target, $data, $registerToken = null) {
