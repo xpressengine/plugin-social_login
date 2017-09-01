@@ -162,12 +162,12 @@ class Plugin extends AbstractPlugin
 
                 $provider = $registerToken->provider;
                 $email = $registerToken->email;
-                $displayName = $registerToken->displayName;
+                $displayName = $registerToken->display_name;
 
                 app('xe.frontend')->html('social_login.register')->content("
                     <script>
                         $('input[name=email]').attr('readonly','readonly').val('{$email}');
-                        $('input[name=displayName]').val('{$displayName}');
+                        $('input[name=display_name]').val('{$displayName}');
                         $('input[name=password]').parent().remove();
                         $('input[name=password_confirmation]').parent().remove();
                     </script>
