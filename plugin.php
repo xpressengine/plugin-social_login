@@ -168,13 +168,13 @@ class Plugin extends AbstractPlugin
 
                     $provider = $token->provider;
                     $email = $token->email;
-                    $displayName = $token->displayName;
+                    $displayName = $token->display_name;
 
                     app('xe.frontend')->html('social_login.register')->content(
                         "
                     <script>
                         $('input[name=email]').attr('readonly','readonly').val('{$email}');
-                        $('input[name=displayName]').val('{$displayName}');
+                        $('input[name=display_name]').val('{$displayName}');
                         $('input[name=password]').parent().remove();
                         $('input[name=password_confirmation]').parent().remove();
                     </script>
