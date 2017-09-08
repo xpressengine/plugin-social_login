@@ -43,7 +43,6 @@ class SettingsController extends Controller
 
     public function index()
     {
-
         if($this->plugin->checkUpdated() === false) {
             return redirect()->route('settings.plugins.show', 'social_login')->with('alert', ['type' => 'danger', 'message' => '소셜로그인 플러그인의 업데이트가 필요합니다. 업데이트 실행해주십시오.']);
         }

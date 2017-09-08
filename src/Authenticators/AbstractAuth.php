@@ -184,7 +184,6 @@ class AbstractAuth
         XeDB::beginTransaction();
         try {
             if ($existingAccount !== null && $existingEmail === null) {
-
                 // if email exists, insert email
                 if ($accountData['email'] !== null) {
                     $existingEmail = $handler->createEmail(
@@ -193,10 +192,8 @@ class AbstractAuth
                     );
                 }
             } elseif ($existingAccount === null && $existingEmail !== null) {
-
                 // if account is not exists, insert account
                 $existingAccount = $handler->createAccount($existingEmail->user, $accountData);
-
             } elseif ($existingAccount !== null && $existingEmail !== null) {
                 if ($existingAccount->user_id !== $existingEmail->user_id) {
                     // email is registered by another user!!
@@ -298,7 +295,7 @@ class AbstractAuth
         $displayName = $this->resolveDisplayName($userInfo->nickname ?: $userInfo->name);
         return [
             'email' => $userInfo->email,
-            'displayName' => $displayName,
+            'display_name' => $displayName,
             'account' => $accountInfo
         ];
     }
@@ -307,10 +304,10 @@ class AbstractAuth
     {
         return [
             'email' => $userInfo->email,
-            'accountId' => $userInfo->id,
+            'account_id' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => isset($userInfo->token_secret) ? $userInfo->token_secret : ''
+            'token_secret' => isset($userInfo->token_secret) ? $userInfo->token_secret : ''
         ];
     }
 
