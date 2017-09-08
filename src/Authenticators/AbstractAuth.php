@@ -79,10 +79,10 @@ class AbstractAuth
                 $info = [];
                 $info['provider'] = $this->provider;
                 $info['email'] = $userInfo->email;
-                $info['displayName'] = $userData['displayName'];
+                $info['display_name'] = $userData['display_name'];
                 $info['token'] = $userInfo->token;
                 if($userInfo instanceof \Laravel\Socialite\One\User) {
-                    $info['tokenSecret'] = $userInfo->tokenSecret;
+                    $info['token_secret'] = $userInfo->token_secret;
                 }
 
                 $token = app('xe.user.register.tokens')->create('social_login', $info);
@@ -168,7 +168,7 @@ class AbstractAuth
 
         // retrieve account and email
         $existingAccount = $handler->accounts()
-            ->where(['provider' => $this->provider, 'accountId' => $accountData['accountId']])
+            ->where(['provider' => $this->provider, 'account_id' => $accountData['account_id']])
             ->first();
         $existingEmail = array_get($accountData, 'email', false) ? $handler->emails()->findByAddress(
             $accountData['email']
@@ -198,7 +198,7 @@ class AbstractAuth
                 $existingAccount = $handler->createAccount($existingEmail->user, $accountData);
 
             } elseif ($existingAccount !== null && $existingEmail !== null) {
-                if ($existingAccount->userId !== $existingEmail->userId) {
+                if ($existingAccount->user_id !== $existingEmail->user_id) {
                     // email is registered by another user!!
                     $e = new XpressengineException();
                     $e->setMessage('이미 다른 회원에 의해 등록된 이메일입니다.');
@@ -210,8 +210,8 @@ class AbstractAuth
             if ($existingAccount !== null && $existingAccount->token !== $accountData['token']) {
                 $existingAccount->token = $accountData['token'];
 
-                if(array_has($accountData, 'tokenSecret')) {
-                    $existingAccount->tokenSecret = $accountData['tokenSecret'];
+                if(array_has($accountData, 'token_secret')) {
+                    $existingAccount->token_secret = $accountData['token_secret'];
                 }
 
                 $existingAccount = $handler->updateAccount($existingAccount);
@@ -236,7 +236,7 @@ class AbstractAuth
 
         // retrieve account and email
         $existingAccount = $handler->accounts()
-            ->where(['provider' => $this->provider, 'accountId' => $userInfo->id])
+            ->where(['provider' => $this->provider, 'account_id' => $userInfo->id])
             ->first();
 
         $existingEmail = null;
@@ -246,13 +246,13 @@ class AbstractAuth
 
         $id = $user->getId();
 
-        if ($existingAccount !== null && $existingAccount->userId !== $id) {
+        if ($existingAccount !== null && $existingAccount->user_id !== $id) {
             $e = new XpressengineException();
             $e->setMessage('이미 다른 회원에 의해 등록된 계정입니다.');
             throw $e;
         }
 
-        if ($existingEmail !== null && $existingEmail->userId !== $id) {
+        if ($existingEmail !== null && $existingEmail->user_id !== $id) {
             $e = new XpressengineException();
             $e->setMessage('이미 다른 회원에 의해 등록된 이메일입니다.');
             throw $e;
@@ -310,7 +310,7 @@ class AbstractAuth
             'accountId' => $userInfo->id,
             'provider' => $this->provider,
             'token' => $userInfo->token,
-            'tokenSecret' => isset($userInfo->tokenSecret) ? $userInfo->tokenSecret : ''
+            'tokenSecret' => isset($userInfo->token_secret) ? $userInfo->token_secret : ''
         ];
     }
 
@@ -321,7 +321,7 @@ class AbstractAuth
         $i = 0;
         $name = $displayName;
         while (true) {
-            if ($handler->users()->where(['displayName' => $name])->first() !== null) {
+            if ($handler->users()->where(['display_name' => $name])->first() !== null) {
                 $name = $displayName.' '.$i++;
             } else {
                 return $name;
