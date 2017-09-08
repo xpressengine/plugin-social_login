@@ -38,12 +38,10 @@ class Plugin extends AbstractPlugin
     public function checkUpdated()
     {
         $config = app('xe.config')->get('social_login');
-        if($config === null) {
+        if ($config === null) {
             return false;
         }
-
         return true;
-
     }
 
     public function update()

@@ -40,19 +40,27 @@ class AuthSkin extends CoreSkin
         return view($plugin->view('views.login'), $this->data, compact('providers'));
     }
 
-    protected function register()
+    protected function registerIndex()
+    {
+        return parent::registerIndex();
+    }
+
+    protected function registerCreate()
     {
         /** @var Plugin $plugin */
         $plugin = app(Plugin::class);
         $providers = $plugin->getProviders();
 
-        $use_email = app('request')->get('use_email', false);
-
-        if ($use_email !== false) {
-            return parent::register();
+        $config = app('xe.config')->get('user.join');
+        if ($config->get('guard_forced', false) || request()->has('token')) {
+            return parent::registerCreate();
         }
 
-        return view($plugin->view('views.register'), $this->data, compact('providers'));
+        $use_email = app('request')->get('use_email', false);
+        if ($use_email !== false) {
+            return parent::registerCreate();
+        }
+        return view($plugin->view('views.create'), $this->data, compact('providers'));
     }
 
 }

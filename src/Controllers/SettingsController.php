@@ -17,6 +17,7 @@ use App\Http\Controllers\Controller;
 use XePresenter;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
+use Xpressengine\Plugins\SocialLogin\Skins\AuthSkin;
 
 /**
  * @category    SocialLogin
@@ -49,10 +50,20 @@ class SettingsController extends Controller
 
         $providers = $this->plugin->getProviders();
 
+        $skinSelected = true;
+        $skin = app('xe.skin')->getAssigned('user/auth', 'desktop');
+        if ($skin->getId() !== AuthSkin::getId()) {
+            $skinSelected = false;
+        }
+        $skin = app('xe.skin')->getAssigned('user/auth', 'mobile');
+        if ($skin->getId() !== AuthSkin::getId()) {
+            $skinSelected = false;
+        }
+
         app('xe.frontend')->js(
             ['assets/core/xe-ui-component/js/xe-page.js', 'assets/core/xe-ui-component/js/xe-form.js']
         )->load();
-        return \XePresenter::make('social_login::tpl.setting', compact('providers'));
+        return \XePresenter::make('social_login::tpl.setting', compact('providers', 'skinSelected'));
     }
 
     public function show($provider)
