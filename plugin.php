@@ -171,7 +171,7 @@ class Plugin extends AbstractPlugin
                     app('xe.frontend')->html('social_login.register')->content(
                         "
                     <script>
-                        $('input[name=email]').attr('readonly','readonly').val('{$email}');
+                        $('input[name=email]').val('{$email}');
                         $('input[name=display_name]').val('{$displayName}');
                         $('input[name=password]').parent().remove();
                         $('input[name=password_confirmation]').parent().remove();
@@ -195,7 +195,7 @@ class Plugin extends AbstractPlugin
 
                 $provider = $registerToken->provider;
                 $token = $registerToken->token;
-                $tokenSecret = data_get($registerToken, 'tokenSecret');
+                $tokenSecret = data_get($registerToken, 'token_secret');
                 $email = $registerToken->email;
 
                 if ($email && $email !== $data['email']) {
