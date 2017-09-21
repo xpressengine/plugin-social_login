@@ -1,4 +1,5 @@
 {
+  "replace": { "illuminate/contracts": "~5.5", "illuminate/http": "~5.5", "illuminate/support": "~5.5" },
   "name": "xpressengine-plugin/social_login",
   "description": "social login for xpressengine",
   "keywords": [
@@ -7,7 +8,7 @@
     "login",
     "sns"
   ],
-  "version": "0.9.15",
+  "version": "0.9.16",
   "support": {
     "email": "developers@xpressengine.com"
   },
@@ -35,7 +36,7 @@
     }
   },
   "require": {
-    "laravel/socialite": "2.0.21"
+    "laravel/socialite": "~3.0.0"
   },
   "autoload": {
     "psr-4": {

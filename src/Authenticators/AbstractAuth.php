@@ -82,7 +82,7 @@ class AbstractAuth
                 $info['display_name'] = $userData['display_name'];
                 $info['token'] = $userInfo->token;
                 if($userInfo instanceof \Laravel\Socialite\One\User) {
-                    $info['token_secret'] = $userInfo->token_secret;
+                    $info['token_secret'] = $userInfo->tokenSecret;
                 }
 
                 $token = app('xe.user.register.tokens')->create('social_login', $info);
