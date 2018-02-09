@@ -18,6 +18,7 @@ use Auth;
 use Laravel\Socialite\SocialiteManager;
 use XeDB;
 use Xpressengine\Support\Exceptions\XpressengineException;
+use Xpressengine\User\Rating;
 use Xpressengine\User\UserInterface;
 
 /**
@@ -69,25 +70,21 @@ class AbstractAuth
     {
         // if authorized user info is not saved completely, save user info.
         try {
-            $handler = app('xe.user');
             $userData = $this->resolveUserInfo($userInfo);
-            $user = $this->resolveUser($userData);
 
             // if user not exist, redirect to register page after saving token.
-            if($user === null) {
-
-                $info = [];
-                $info['provider'] = $this->provider;
-                $info['email'] = $userInfo->email;
-                $info['display_name'] = $userData['display_name'];
-                $info['token'] = $userInfo->token;
-                if($userInfo instanceof \Laravel\Socialite\One\User) {
-                    $info['token_secret'] = $userInfo->tokenSecret;
+            if(!$user = $this->resolveUser($userData)) {
+                $config = app('xe.config')->get('user.join');
+                $joinGroup = $config->get('joinGroup');
+                if ($joinGroup !== null) {
+                    $userData['group_id'] = [$joinGroup];
                 }
 
-                $token = app('xe.user.register.tokens')->create('social_login', $info);
+                // todo: create 메서드 내부에서 기본값 설정하도록
+                $userData['rating'] = Rating::MEMBER;
+                $userData['status'] = \XeUser::STATUS_ACTIVATED;
 
-                return redirect()->route('auth.register', ['token' => $token->id]);
+                $user = app('xe.user')->create($userData);
             }
         } catch (\Exception $e) {
             throw $e;

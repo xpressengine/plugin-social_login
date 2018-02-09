@@ -45,12 +45,10 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
         $query               = $this->getTokenFields($code);
         $query['grant_type'] = 'authorization_code';
 
-        $response = $this->getHttpClient()->get(
-            $this->getTokenUrl(), [
-                                    'headers' => ['Accept' => 'application/json'],
-                                    'query' => $query,
-                                ]
-        );
+        $response = $this->getHttpClient()->get($this->getTokenUrl(), [
+            'headers' => ['Accept' => 'application/json'],
+            'query' => $query,
+        ]);
 
         return json_decode($response->getBody(), true);
     }
@@ -74,11 +72,10 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
         );
 
         $user = (array) simplexml_load_string($response->getBody())->response;
-        return array_map(
-            function ($field) {
-                return (string) $field;
-            }, $user
-        );
+
+        return array_map(function ($field) {
+            return (string) $field;
+        }, $user);
     }
 
     /**
@@ -86,15 +83,13 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
      */
     protected function mapUserToObject(array $user)
     {
-        return (new User)->setRaw($user)->map(
-            [
-                'id' => $user['id'],
-                'nickname' => $user['nickname'],
-                'name' => null,
-                'email' => array_get($user, 'email'),
-                'avatar' => $user['profile_image'],
-            ]
-        );
+        return (new User)->setRaw($user)->map([
+            'id' => $user['id'],
+            'nickname' => array_get($user, 'nickname'),
+            'name' => array_get($user, 'name'),
+            'email' => array_get($user, 'email'),
+            'avatar' => array_get($user, 'profile_image'),
+        ]);
     }
 
 }

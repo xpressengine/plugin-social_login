@@ -67,4 +67,22 @@ class ConnectController extends Controller
             ]
         );
     }
+
+    public function register()
+    {
+        $providers = [];
+        if ($config = app('xe.config')->get('social_login')) {
+            $providers = $config->get('providers');
+
+            foreach ($providers as $provider => $info) {
+                if(isset($info['use'])) {
+                    $info['activate'] = $info['use'];
+                    unset($info['use']);
+                    $providers[$provider] = $info;
+                }
+            }
+        }
+
+        return \XePresenter::make('social_login::views.register', compact('providers'));
+    }
 }
