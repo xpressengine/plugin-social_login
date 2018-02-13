@@ -49,32 +49,24 @@ class SettingsController extends Controller
 
         $providers = $this->plugin->getProviders();
 
-        $skinSelected = true;
-        $skin = app('xe.skin')->getAssigned('user/auth', 'desktop');
-        if ($skin->getId() !== AuthSkin::getId()) {
-            $skinSelected = false;
-        }
-        $skin = app('xe.skin')->getAssigned('user/auth', 'mobile');
-        if ($skin->getId() !== AuthSkin::getId()) {
-            $skinSelected = false;
-        }
+        app('xe.frontend')->js([
+            'assets/core/xe-ui-component/js/xe-page.js',
+            'assets/core/xe-ui-component/js/xe-form.js'
+        ])->load();
 
-        app('xe.frontend')->js(
-            ['assets/core/xe-ui-component/js/xe-page.js', 'assets/core/xe-ui-component/js/xe-form.js']
-        )->load();
-        return \XePresenter::make('social_login::tpl.setting', compact('providers', 'skinSelected'));
+        return \XePresenter::make('social_login::tpl.setting', compact('providers'));
     }
 
     public function show($provider)
     {
         $providers = $this->plugin->getProviders();
-        return apiRender('social_login::tpl.show', compact('providers', 'provider'));
+        return api_render('social_login::tpl.show', compact('providers', 'provider'));
     }
 
     public function edit($provider)
     {
         $providers = $this->plugin->getProviders();
-        return apiRender('social_login::tpl.edit', compact('providers', 'provider'));
+        return api_render('social_login::tpl.edit', compact('providers', 'provider'));
     }
 
     public function update(Request $request, $provider)
