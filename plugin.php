@@ -148,22 +148,7 @@ class Plugin extends AbstractPlugin
             $accounts[$account->provider] = $account;
         }
 
-        app('xe.frontend')->html('social_login::addlink')->content(
-            "
-            <script>
-            $(function () {
-                $('.__xe_socialConnect').click(function(){
-                    window.open($(this).data('link'), 'social_login_connect',\"width=600,height=400,scrollbars=no\");
-                });
-                $('.__xe_socialDisconnect').click(function(){
-                    location.href = $(this).data('link');
-                })
-            });
-            </script>
-        "
-        )->load();
-
-        return \View::make('social_login::tpl.member_setting', compact('member', 'accounts', 'providers'));
+        return view('social_login::tpl.member_setting', compact('accounts', 'providers'));
     }
 
     private function resolveProviders()
