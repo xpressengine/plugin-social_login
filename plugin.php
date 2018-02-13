@@ -75,7 +75,7 @@ class Plugin extends AbstractPlugin
         $this->registerSection();
 
         // register route
-        $this->route($this->providers);
+        $this->routes();
 
         // set config for redirect
         foreach ($this->providers as $provider => $info) {
@@ -101,11 +101,11 @@ class Plugin extends AbstractPlugin
         return new $proxyClass($provider);
     }
 
-    private function route($providers)
+    private function routes()
     {
-        $this->routeSettings($providers);
-        $this->routeConnect();
-        $this->routeDisconnect();
+        Route::group(['namespace' => 'Xpressengine\\Plugins\\SocialLogin\\Controllers'], function () {
+            require __DIR__ . '/routes.php';
+        });
     }
 
     private function registerSettingsMenu()
@@ -186,89 +186,5 @@ class Plugin extends AbstractPlugin
         app('xe.config')->setVal('social_login.providers', $providers);
 
         return $providers;
-    }
-
-    /**
-     * routeSettings
-     *
-     * @param $providers
-     */
-    private function routeSettings($providers)
-    {
-        // register setting page
-        Route::settings(
-            static::getId(),
-            function () use ($providers) {
-                Route::get('/', [
-                    'as' => 'social_login::settings',
-                    'uses' => 'SettingsController@index',
-                    'permission' => 'user.setting',
-                    'settings_menu' => 'user.social_login@default'
-                ]);
-                Route::group(['prefix'=>'providers'], function(){
-                    Route::get('{provider}', [
-                        'as' => 'social_login::settings.provider.show',
-                        'uses' => 'SettingsController@show',
-                        'permission' => 'user.setting'
-                    ]);
-                    Route::get('{provider}/edit', [
-                        'as' => 'social_login::settings.provider.edit',
-                        'uses' => 'SettingsController@edit',
-                        'permission' => 'user.setting'
-                    ]);
-                    Route::put('{provider}', [
-                        'as' => 'social_login::settings.provider.update',
-                        'uses' => 'SettingsController@update',
-                        'permission' => 'user.setting'
-                    ]);
-                });
-            },
-            ['namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers']
-        );
-    }
-
-    /**
-     * routeLogin
-     *
-     * @return void
-     */
-    private function routeConnect()
-    {
-        Route::fixed(
-            static::getId(),
-            function () {
-                Route::group(['prefix' => 'login'], function () {
-                    Route::get('{provider}', [
-                        'as' => 'social_login::connect',
-                        'uses' => 'ConnectController@connect',
-                    ]);
-                });
-
-                Route::get('register', ['as' => 'social_login::register', 'uses' => 'ConnectController@register']);
-            },
-            ['namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers']
-        );
-    }
-
-    /**
-     * routeLogin
-     *
-     * @return void
-     */
-    private function routeDisconnect()
-    {
-        Route::fixed(
-            static::getId(),
-            function () {
-                // register each provider's connect page
-                Route::group(['prefix' => 'disconnect', 'middleware' => 'auth'], function () {
-                    Route::get('{provider}', [
-                        'as' => 'social_login::disconnect',
-                        'uses' => 'ConnectController@disconnect',
-                    ]);
-                });
-            },
-            ['namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers']
-        );
     }
 }

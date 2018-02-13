@@ -36,6 +36,14 @@ class Middleware
             return redirect()->route('social_login::register');
         }
 
+        if (
+            $request->routeIs('login') &&
+            in_array('GET', $request->route()->methods()) &&
+            $request->get('by') !== 'email'
+        ) {
+            return redirect()->route('social_login::login');
+        }
+
         return $next($request);
     }
 }

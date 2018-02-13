@@ -14,6 +14,7 @@
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
+use XePresenter;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
 
@@ -68,21 +69,24 @@ class ConnectController extends Controller
         );
     }
 
+    public function login()
+    {
+        return XePresenter::make('social_login::views.login', ['providers' => $this->getEnabledProviders()]);
+    }
+
     public function register()
     {
-        $providers = [];
-        if ($config = app('xe.config')->get('social_login')) {
-            $providers = $config->get('providers');
+        return XePresenter::make('social_login::views.register', ['providers' => $this->getEnabledProviders()]);
+    }
 
-            foreach ($providers as $provider => $info) {
-                if(isset($info['use'])) {
-                    $info['activate'] = $info['use'];
-                    unset($info['use']);
-                    $providers[$provider] = $info;
-                }
-            }
+    protected function getEnabledProviders()
+    {
+        if (!$config = app('xe.config')->get('social_login')) {
+            return [];
         }
 
-        return \XePresenter::make('social_login::views.register', compact('providers'));
+        return collect($config->get('providers'))->filter(function ($info) {
+            return array_get($info, 'activate') === true;
+        });
     }
 }
