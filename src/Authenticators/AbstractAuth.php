@@ -13,12 +13,11 @@
 
 namespace Xpressengine\Plugins\SocialLogin\Authenticators;
 
-use App\Facades\XeUser;
 use Auth;
 use Laravel\Socialite\SocialiteManager;
 use XeDB;
 use Xpressengine\Support\Exceptions\XpressengineException;
-use Xpressengine\User\Rating;
+use Xpressengine\User\Models\User;
 use Xpressengine\User\UserInterface;
 
 /**
@@ -80,10 +79,6 @@ class AbstractAuth
                     $userData['group_id'] = [$joinGroup];
                 }
 
-                // todo: create 메서드 내부에서 기본값 설정하도록
-                $userData['rating'] = Rating::MEMBER;
-                $userData['status'] = \XeUser::STATUS_ACTIVATED;
-
                 $user = app('xe.user')->create($userData);
             }
         } catch (\Exception $e) {
@@ -91,7 +86,7 @@ class AbstractAuth
         }
 
         // check user's status
-        if ($user->getStatus() === XeUser::STATUS_ACTIVATED) {
+        if ($user->getStatus() === User::STATUS_ACTIVATED) {
             $this->loginMember($user);
         } else {
             return redirect()->route('login')->with('alert', ['type' => 'danger', 'message' => '사용중지된 계정입니다.']);
