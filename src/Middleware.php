@@ -41,7 +41,7 @@ class Middleware
             in_array('GET', $request->route()->methods()) &&
             $request->get('by') !== 'email'
         ) {
-            return redirect()->route('social_login::login');
+            return redirect()->route('social_login::login', $request->query());
         }
 
         return $next($request);

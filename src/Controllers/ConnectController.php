@@ -38,6 +38,8 @@ class ConnectController extends Controller
     public function __construct(Plugin $plugin)
     {
         $this->plugin = $plugin;
+
+        $this->middleware('guest', ['except' => ['disconnect']]);
     }
 
     public function connect(Request $request, $provider)
@@ -69,8 +71,15 @@ class ConnectController extends Controller
         );
     }
 
-    public function login()
+    public function login(Request $request)
     {
+        $redirectUrl = $request->get('redirectUrl',
+            $request->session()->pull('url.intended') ?: url()->previous());
+
+        if ($redirectUrl !== $request->url()) {
+            $request->session()->put('url.intended', $redirectUrl);
+        }
+
         return XePresenter::make('social_login::views.login', ['providers' => $this->getEnabledProviders()]);
     }
 
