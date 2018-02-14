@@ -13,6 +13,7 @@ use Route;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Authenticators\AbstractAuth;
+use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserInterface;
 
 class Plugin extends AbstractPlugin
@@ -124,17 +125,12 @@ class Plugin extends AbstractPlugin
 
     private function registerSection()
     {
-        $plugin = $this;
-        app('xe.register')->push(
-            'user/settings/section',
-            'social_login@section',
-            [
-                'title' => '소셜 로그인 설정',
-                'content' => function ($member) use ($plugin) {
-                    return $plugin->getMemberSettingSection($member);
-                }
-            ]
-        );
+        UserHandler::setSettingsSections('social_login@section', [
+            'title' => '소셜 로그인 설정',
+            'content' => function ($member) {
+                return $this->getMemberSettingSection($member);
+            }
+        ]);
     }
 
     protected function getMemberSettingSection(UserInterface $member)
