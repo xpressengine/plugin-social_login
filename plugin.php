@@ -115,8 +115,8 @@ class Plugin extends AbstractPlugin
             'settings/menu',
             'user.social_login@default',
             [
-                'title' => '소셜로그인',
-                'description' => '소셜로그인을 설정하는 방법을 안내합니다.',
+                'title' => 'social_login::socialLogin',
+                'description' => 'social_login::descSocialLoginMenu',
                 'display' => true,
                 'ordering' => 350
             ]
@@ -126,7 +126,7 @@ class Plugin extends AbstractPlugin
     private function registerSection()
     {
         UserHandler::setSettingsSections('social_login@section', [
-            'title' => '소셜 로그인 설정',
+            'title' => 'social_login::socialLoginSetting',
             'content' => function ($member) {
                 return $this->getMemberSettingSection($member);
             }

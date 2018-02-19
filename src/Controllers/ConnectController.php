@@ -62,13 +62,7 @@ class ConnectController extends Controller
 
         $auth->disconnect();
 
-        return redirect()->back()->with(
-            'alert',
-            [
-                'type' => 'success',
-                'message' => '연결해제 되었습니다'
-            ]
-        );
+        return redirect()->back()->with('alert', ['type' => 'success', 'message' => 'social_login::msgDisconnected']);
     }
 
     public function login(Request $request)

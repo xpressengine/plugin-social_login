@@ -78,7 +78,9 @@ class SettingsController extends Controller
         $providers[$provider] = $inputs;
         app('xe.config')->setVal('social_login.providers', $providers);
 
-        $url = route('social_login::settings.provider.show', ['provider'=>$provider]);
-        return XePresenter::makeApi(['type' => 'success', 'message' => '수정되었습니다.', 'url' => $url, 'provider' => $provider]);
+        $url = route('social_login::settings.provider.show', ['provider'=> $provider]);
+        return XePresenter::makeApi([
+            'type' => 'success', 'message' => xe_trans('xe::saved'), 'url' => $url, 'provider' => $provider
+        ]);
     }
 }

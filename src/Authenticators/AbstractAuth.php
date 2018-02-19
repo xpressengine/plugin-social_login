@@ -89,7 +89,10 @@ class AbstractAuth
         if ($user->getStatus() === User::STATUS_ACTIVATED) {
             $this->loginMember($user);
         } else {
-            return redirect()->route('login')->with('alert', ['type' => 'danger', 'message' => '사용중지된 계정입니다.']);
+            return redirect()->route('login')->with('alert', [
+                'type' => 'danger',
+                'message' => xe_trans('social_login::disabledAccount')
+            ]);
         }
 
         return redirect()->intended('/');
@@ -118,7 +121,7 @@ class AbstractAuth
 
     public function disconnect()
     {
-        $user = \Auth::user();
+        $user = Auth::user();
 
         $account = $user->getAccountByProvider($this->provider);
 
@@ -188,9 +191,8 @@ class AbstractAuth
                 $existingAccount = $handler->createAccount($existingEmail->user, $accountData);
             } elseif ($existingAccount !== null && $existingEmail !== null) {
                 if ($existingAccount->user_id !== $existingEmail->user_id) {
-                    // email is registered by another user!!
                     $e = new XpressengineException();
-                    $e->setMessage('이미 다른 회원에 의해 등록된 이메일입니다.');
+                    $e->setMessage(xe_trans('social_login::alreadyRegisteredEmail'));
                     throw $e;
                 }
             }
@@ -237,13 +239,13 @@ class AbstractAuth
 
         if ($existingAccount !== null && $existingAccount->user_id !== $id) {
             $e = new XpressengineException();
-            $e->setMessage('이미 다른 회원에 의해 등록된 계정입니다.');
+            $e->setMessage(xe_trans('social_login::alreadyRegisteredAccount'));
             throw $e;
         }
 
         if ($existingEmail !== null && $existingEmail->user_id !== $id) {
             $e = new XpressengineException();
-            $e->setMessage('이미 다른 회원에 의해 등록된 이메일입니다.');
+            $e->setMessage(xe_trans('social_login::alreadyRegisteredEmail'));
             throw $e;
         }
 
