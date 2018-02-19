@@ -305,6 +305,12 @@ h6 {
     background-color: #00c300;
 }
 
+.member .auth-sns li.sns-email a {
+    background-color: #fff;
+    color: #8f8f8f !important;
+    border: 1px solid #cfcfcf;
+}
+
 .member .auth-sns li.sns-facebook a:hover {
     background-color: #1d315b;
 }
@@ -329,10 +335,18 @@ h6 {
     background-color: #23b300;
 }
 
+.member .auth-sns li.sns-email a:hover {
+    background-color: #efefef;
+}
+
 .member .auth-sns li a i {
     color: #fff;
     font-size: 25px;
     line-height: 40px;
+}
+
+.member .auth-sns li.sns-email a i {
+    color: #8f8f8f;
 }
 
 .member hr {

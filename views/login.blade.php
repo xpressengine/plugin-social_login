@@ -8,8 +8,9 @@
             @foreach($providers as $provider => $info)
                 <li class="sns-{{ $provider }}"><a href="{{ route('social_login::connect', ['provider'=>$provider]) }}"><i class="xi-{{ $provider }}"></i>{{ $info['title'] }}계정으로 로그인</a></li>
             @endforeach
+            <li class="sns-email"><a href="{{ route('login', ['by' => 'email']) }}"><i class="xi-mail-o"></i>이메일로 로그인</a></li>
         </ul>
-        <a href="{{ route('login', ['by' => 'email']) }}" class="xe-btn xe-btn-link">이메일로 로그인하기</a>
+        <p class="auth-text"><a href="{{ route('auth.register') }}">{{xe_trans('xe::doSignUp')}}</a></p>
     </div>
 </div>
 <!--//소셜로그인-->

@@ -80,12 +80,12 @@ class ConnectController extends Controller
             $request->session()->put('url.intended', $redirectUrl);
         }
 
-        return XePresenter::make('social_login::views.login', ['providers' => $this->getEnabledProviders()]);
-    }
+        $providers = $this->getEnabledProviders();
+        if (count($providers) < 1) {
+            return redirect()->route('login', ['by' => 'email']);
+        }
 
-    public function register()
-    {
-        return XePresenter::make('social_login::views.register', ['providers' => $this->getEnabledProviders()]);
+        return XePresenter::make('social_login::views.login', compact('providers'));
     }
 
     protected function getEnabledProviders()

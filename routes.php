@@ -38,6 +38,4 @@ Route::fixed('social_login', function () {
             'uses' => 'ConnectController@disconnect',
         ]);
     });
-
-    Route::get('register', ['as' => 'social_login::register', 'uses' => 'ConnectController@register']);
 });

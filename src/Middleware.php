@@ -29,14 +29,6 @@ class Middleware
     public function handle($request, Closure $next)
     {
         if (
-            $request->routeIs('auth.register') &&
-            $request->get('by') !== 'email' &&
-            !$request->get('token')
-        ) {
-            return redirect()->route('social_login::register');
-        }
-
-        if (
             $request->routeIs('login') &&
             in_array('GET', $request->route()->methods()) &&
             $request->get('by') !== 'email'
