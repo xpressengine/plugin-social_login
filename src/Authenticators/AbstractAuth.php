@@ -49,14 +49,14 @@ class AbstractAuth
         return 'code';
     }
 
-    public function execute($hasCode)
+    public function execute($hasCode, $stateless = false)
     {
         if (!$hasCode) {
             return $this->authorization();
         }
 
         // get user info from oauth server
-        $userInfo = $this->getAuthenticatedUser();
+        $userInfo = $this->getAuthenticatedUser(null, null, $stateless);
 
         if (\Auth::check() === false) {
             return $this->login($userInfo);
@@ -133,12 +133,14 @@ class AbstractAuth
         return $this->socialite->driver($this->provider)->redirect();
     }
 
-    public function getAuthenticatedUser($token = null, $tokenSecret = null)
+    public function getAuthenticatedUser($token = null, $tokenSecret = null, $stateless = false)
     {
-
         $provider = $this->socialite->driver($this->provider);
+        if ($stateless === true) {
+            $provider->stateless();
+        }
+        
         if($token !== null) {
-
             if ($provider instanceof \Laravel\Socialite\One\AbstractProvider) {
                 return $provider->userFromTokenAndSecret($token, $tokenSecret);
             } else if ($provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
