@@ -79,7 +79,9 @@ class ConnectController extends Controller
             return redirect()->route('login', ['by' => 'email']);
         }
 
-        return XePresenter::make('social_login::views.login', compact('providers'));
+        XePresenter::setSkinTargetId('social_login');
+
+        return XePresenter::make('login', compact('providers'));
     }
 
     protected function getEnabledProviders()

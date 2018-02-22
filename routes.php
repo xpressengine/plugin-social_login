@@ -24,6 +24,7 @@ Route::settings('social_login', function () {
             'permission' => 'user.setting'
         ]);
     });
+    Route::put('skin', ['as' => 'social_login::settings.skin.update', 'uses' => 'SettingsController@updateSkin']);
 });
 
 Route::fixed('social_login', function () {

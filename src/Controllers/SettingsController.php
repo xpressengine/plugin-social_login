@@ -15,9 +15,9 @@ namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
 use XePresenter;
+use XeSkin;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
-use Xpressengine\Plugins\SocialLogin\Skins\AuthSkin;
 
 /**
  * @category    SocialLogin
@@ -49,12 +49,15 @@ class SettingsController extends Controller
 
         $providers = $this->plugin->getProviders();
 
+        $skins = XeSkin::getList('social_login');
+        $selected = XeSkin::getAssigned('social_login');
+
         app('xe.frontend')->js([
             'assets/core/xe-ui-component/js/xe-page.js',
             'assets/core/xe-ui-component/js/xe-form.js'
         ])->load();
 
-        return \XePresenter::make('social_login::tpl.setting', compact('providers'));
+        return XePresenter::make('social_login::tpl.setting', compact('providers', 'skins', 'selected'));
     }
 
     public function show($provider)
@@ -82,5 +85,12 @@ class SettingsController extends Controller
         return XePresenter::makeApi([
             'type' => 'success', 'message' => xe_trans('xe::saved'), 'url' => $url, 'provider' => $provider
         ]);
+    }
+
+    public function updateSkin(Request $request)
+    {
+        if ($skin = XeSkin::get($request->get('skin'))) {
+            XeSkin::assign('social_login', $skin);
+        }
     }
 }

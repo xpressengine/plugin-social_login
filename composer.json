@@ -25,7 +25,13 @@
     "xpressengine": {
       "title": "SocialLogin",
       "icon": "icon.png",
-      "component": {}
+      "component": {
+        "social_login/skin/social_login@default": {
+          "class": "\\Xpressengine\\Plugins\\SocialLogin\\Skins\\DefaultSkin",
+          "name": "소셜로그인 기본 스킨",
+          "description": "소셜로그인 기본 스킨입니다."
+        }
+      }
     }
   },
   "require": {
