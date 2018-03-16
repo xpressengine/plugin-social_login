@@ -1,10 +1,10 @@
 <div>
-    <h5 class="btn-link"><strong>{{ $provider }} 설정</strong></h5>
+    <h5 class="btn-link"><strong>{{ $provider }}</strong></h5>
     <hr>
     <form action="{{ route('social_login::settings.provider.update', ['provider'=>$provider]) }}" method="POST" data-submit="xe-ajax" data-callback="updateSocialLogin" >
         {{ method_field('PUT') }}
         <input type="hidden" name="title" value="{{ array_get($providers, $provider.'.title') }}">
-        {{ uio('formSelect', ['label'=>'사용하시겠습니까?', 'name'=>'activate', 'options'=>['Y' => '사용', 'N' => '사용 안 함'], 'value'=> array_get($providers, $provider.'.activate') ? 'Y' : 'N']) }}
+        {{ uio('formSelect', ['label'=> xe_trans('social_login::useOrNot'), 'name'=>'activate', 'options'=>['Y' => xe_trans('xe::use'), 'N' => xe_trans('xe::disuse')], 'value'=> array_get($providers, $provider.'.activate') ? 'Y' : 'N']) }}
         {{ uio('formText', ['label'=> 'client_id', 'name'=>'client_id', 'value' => array_get($providers, $provider.'.client_id')]) }}
         {{ uio('formText', ['label'=> 'client_secret', 'name'=>'client_secret', 'value' => array_get($providers, $provider.'.client_secret')]) }}
 

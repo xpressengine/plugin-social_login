@@ -13,6 +13,7 @@ use Route;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Authenticators\AbstractAuth;
+use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserInterface;
 
 class Plugin extends AbstractPlugin
@@ -74,16 +75,16 @@ class Plugin extends AbstractPlugin
         // register user settings section
         $this->registerSection();
 
-        $this->registerForUserRegister();
-
         // register route
-        $this->route($this->providers);
+        $this->routes();
 
         // set config for redirect
         foreach ($this->providers as $provider => $info) {
             array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
             config(['services.'.$provider => $info]);
         }
+
+        app('router')->pushMiddlewareToGroup('web', Middleware::class);
     }
 
     public function getProviders()
@@ -93,7 +94,6 @@ class Plugin extends AbstractPlugin
 
     public function getAuthenticator($provider)
     {
-        $providers = $this->getProviders();
         $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
         $className = $namespace.studly_case($provider).'Auth';
 
@@ -102,11 +102,11 @@ class Plugin extends AbstractPlugin
         return new $proxyClass($provider);
     }
 
-    private function route($providers)
+    private function routes()
     {
-        $this->routeSettings($providers);
-        $this->routeConnect();
-        $this->routeDisconnect();
+        Route::group(['namespace' => 'Xpressengine\\Plugins\\SocialLogin\\Controllers'], function () {
+            require __DIR__ . '/routes.php';
+        });
     }
 
     private function registerSettingsMenu()
@@ -115,8 +115,8 @@ class Plugin extends AbstractPlugin
             'settings/menu',
             'user.social_login@default',
             [
-                'title' => '소셜로그인',
-                'description' => '소셜로그인을 설정하는 방법을 안내합니다.',
+                'title' => 'social_login::socialLogin',
+                'description' => 'social_login::descSocialLoginMenu',
                 'display' => true,
                 'ordering' => 350
             ]
@@ -125,96 +125,12 @@ class Plugin extends AbstractPlugin
 
     private function registerSection()
     {
-        $plugin = $this;
-        app('xe.register')->push(
-            'user/settings/section',
-            'social_login@section',
-            [
-                'title' => '소셜 로그인 설정',
-                'content' => function ($member) use ($plugin) {
-                    return $plugin->getMemberSettingSection($member);
-                }
-            ]
-        );
-    }
-
-    protected function registerForUserRegister()
-    {
-        app('xe.register')->push(
-            'user/register/guard',
-            'social_login',
-            [
-                'title' => '소셜로그인 인증',
-                'description' => '소셜로그인 인증을 선택할 수 있습니다.',
-                'render' => function () {
-                $providers = $this->getProviders();
-                return view($this->view('views.register'), compact('providers'))->render();
-            }]
-        );
-
-        app('xe.register')->push(
-            'user/register/form',
-            'social_login',
-            [
-                'title' => '소셜로그인',
-                'description' => '소셜로그인 인증을 사용했을 경우 출력되며, 사용한 소셜로그인을 보여줍니다. 상단에 배치하시기 바랍니다.',
-                'forced' => true,
-                'render' => function ($token) {
-                    if (data_get($token, 'guard') !== 'social_login') {
-                        return null;
-                    }
-
-                    $provider = $token->provider;
-                    $email = $token->email;
-                    $displayName = $token->display_name;
-
-                    app('xe.frontend')->html('social_login.register')->content(
-                        "
-                    <script>
-                        $('input[name=email]').val('{$email}');
-                        $('input[name=display_name]').val('{$displayName}');
-                        $('input[name=password]').parent().remove();
-                        $('input[name=password_confirmation]').parent().remove();
-                    </script>
-                    "
-                    )->load();
-
-                    $providers = $this->getProviders();
-
-                    return view($this->view('views.form'), compact('provider', 'providers'))->render();
-                }
-            ]
-        );
-
-        intercept('XeUser@create', 'social_login@create', function($target, $data, $registerToken = null) {
-
-            if ($registerToken !== null) {
-                if ($registerToken->guard !== 'social_login') {
-                    return $target($data, $registerToken);
-                }
-
-                $provider = $registerToken->provider;
-                $token = $registerToken->token;
-                $tokenSecret = data_get($registerToken, 'token_secret');
-                $email = $registerToken->email;
-
-                if ($email && $email !== $data['email']) {
-                    throw new HttpException(400, '잘못된 이메일 정보입니다.');
-                }
-
-                /** @var AbstractAuth $auth */
-                $auth = $this->getAuthenticator($provider);
-                $userInfo = $auth->getAuthenticatedUser($token, $tokenSecret);
-
-                $userData = $auth->resolveUserInfo($userInfo);
-                $data['account'] = $userData['account'];
+        UserHandler::setSettingsSections('social_login@section', [
+            'title' => 'social_login::socialLoginSetting',
+            'content' => function ($member) {
+                return $this->getMemberSettingSection($member);
             }
-
-            $user = $target($data, $registerToken);
-            return $user;
-        });
-
-
+        ]);
     }
 
     protected function getMemberSettingSection(UserInterface $member)
@@ -228,22 +144,7 @@ class Plugin extends AbstractPlugin
             $accounts[$account->provider] = $account;
         }
 
-        app('xe.frontend')->html('social_login::addlink')->content(
-            "
-            <script>
-            $(function () {
-                $('.__xe_socialConnect').click(function(){
-                    window.open($(this).data('link'), 'social_login_connect',\"width=600,height=400,scrollbars=no\");
-                });
-                $('.__xe_socialDisconnect').click(function(){
-                    location.href = $(this).data('link');
-                })
-            });
-            </script>
-        "
-        )->load();
-
-        return \View::make('social_login::tpl.member_setting', compact('member', 'accounts', 'providers'));
+        return view('social_login::tpl.member_setting', compact('accounts', 'providers'));
     }
 
     private function resolveProviders()
@@ -266,109 +167,5 @@ class Plugin extends AbstractPlugin
         app('xe.config')->setVal('social_login.providers', $providers);
 
         return $providers;
-    }
-
-    /**
-     * routeSettings
-     *
-     * @param $providers
-     */
-    private function routeSettings($providers)
-    {
-        // register setting page
-        Route::settings(
-            static::getId(),
-            function () use ($providers) {
-                Route::get(
-                    '/',
-                    [
-                        'as' => 'social_login::settings',
-                        'uses' => 'Xpressengine\Plugins\SocialLogin\Controllers\SettingsController@index',
-                        'permission' => 'user.setting',
-                        'settings_menu' => 'user.social_login@default'
-                    ]
-                );
-                Route::group(['prefix'=>'providers', 'namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers'], function(){
-                    Route::get(
-                        '{provider}',
-                        [
-                            'as' => 'social_login::settings.provider.show',
-                            'uses' => 'SettingsController@show',
-                            'permission' => 'user.setting'
-                        ]
-                    );
-                    Route::get(
-                        '{provider}/edit',
-                        [
-                            'as' => 'social_login::settings.provider.edit',
-                            'uses' => 'SettingsController@edit',
-                            'permission' => 'user.setting'
-                        ]
-                    );
-                    Route::put(
-                        '{provider}',
-                        [
-                            'as' => 'social_login::settings.provider.update',
-                            'uses' => 'SettingsController@update',
-                            'permission' => 'user.setting'
-                        ]
-                    );
-                });
-            }
-        );
-    }
-
-    /**
-     * routeLogin
-     *
-     * @return void
-     */
-    private function routeConnect()
-    {
-        Route::fixed(
-            static::getId(),
-            function () {
-                Route::group(
-                    ['prefix' => 'login', 'namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers'],
-                    function () {
-
-                        Route::get(
-                            '{provider}',
-                            [
-                                'as' => 'social_login::connect',
-                                'uses' => 'ConnectController@connect',
-                            ]
-                        );
-                    }
-                );
-            }
-        );
-    }
-
-    /**
-     * routeLogin
-     *
-     * @return void
-     */
-    private function routeDisconnect()
-    {
-        Route::fixed(
-            static::getId(),
-            function () {
-                // register each provider's connect page
-                Route::group(
-                    ['prefix' => 'disconnect', 'middleware' => 'auth', 'namespace'=> 'Xpressengine\Plugins\SocialLogin\Controllers'],
-                    function () {
-                        Route::get(
-                            '{provider}',
-                            [
-                                'as' => 'social_login::disconnect',
-                                'uses' => 'ConnectController@disconnect',
-                            ]
-                        );
-                    }
-                );
-            }
-        );
     }
 }

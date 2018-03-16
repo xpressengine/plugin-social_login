@@ -15,9 +15,9 @@ namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
 use XePresenter;
+use XeSkin;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
-use Xpressengine\Plugins\SocialLogin\Skins\AuthSkin;
 
 /**
  * @category    SocialLogin
@@ -49,32 +49,27 @@ class SettingsController extends Controller
 
         $providers = $this->plugin->getProviders();
 
-        $skinSelected = true;
-        $skin = app('xe.skin')->getAssigned('user/auth', 'desktop');
-        if ($skin->getId() !== AuthSkin::getId()) {
-            $skinSelected = false;
-        }
-        $skin = app('xe.skin')->getAssigned('user/auth', 'mobile');
-        if ($skin->getId() !== AuthSkin::getId()) {
-            $skinSelected = false;
-        }
+        $skins = XeSkin::getList('social_login');
+        $selected = XeSkin::getAssigned('social_login');
 
-        app('xe.frontend')->js(
-            ['assets/core/xe-ui-component/js/xe-page.js', 'assets/core/xe-ui-component/js/xe-form.js']
-        )->load();
-        return \XePresenter::make('social_login::tpl.setting', compact('providers', 'skinSelected'));
+        app('xe.frontend')->js([
+            'assets/core/xe-ui-component/js/xe-page.js',
+            'assets/core/xe-ui-component/js/xe-form.js'
+        ])->load();
+
+        return XePresenter::make('social_login::tpl.setting', compact('providers', 'skins', 'selected'));
     }
 
     public function show($provider)
     {
         $providers = $this->plugin->getProviders();
-        return apiRender('social_login::tpl.show', compact('providers', 'provider'));
+        return api_render('social_login::tpl.show', compact('providers', 'provider'));
     }
 
     public function edit($provider)
     {
         $providers = $this->plugin->getProviders();
-        return apiRender('social_login::tpl.edit', compact('providers', 'provider'));
+        return api_render('social_login::tpl.edit', compact('providers', 'provider'));
     }
 
     public function update(Request $request, $provider)
@@ -86,7 +81,16 @@ class SettingsController extends Controller
         $providers[$provider] = $inputs;
         app('xe.config')->setVal('social_login.providers', $providers);
 
-        $url = route('social_login::settings.provider.show', ['provider'=>$provider]);
-        return XePresenter::makeApi(['type' => 'success', 'message' => '수정되었습니다.', 'url' => $url, 'provider' => $provider]);
+        $url = route('social_login::settings.provider.show', ['provider'=> $provider]);
+        return XePresenter::makeApi([
+            'type' => 'success', 'message' => xe_trans('xe::saved'), 'url' => $url, 'provider' => $provider
+        ]);
+    }
+
+    public function updateSkin(Request $request)
+    {
+        if ($skin = XeSkin::get($request->get('skin'))) {
+            XeSkin::assign('social_login', $skin);
+        }
     }
 }

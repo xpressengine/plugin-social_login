@@ -13,9 +13,6 @@
 
 namespace Xpressengine\Plugins\SocialLogin\Authenticators;
 
-use Laravel\Socialite\Contracts\Factory as Socialite;
-use Laravel\Socialite\SocialiteManager;
-
 /**
  * @category
  * @package     Xpressengine\Plugins\SocialLogin\Authenticator

@@ -7,7 +7,7 @@
     "login",
     "sns"
   ],
-  "version": "0.9.17",
+  "version": "0.9.18",
   "support": {
     "email": "developers@xpressengine.com"
   },
@@ -19,17 +19,17 @@
       "role": "Developer"
     }
   ],
-  "license": "LGPL-2.0",
+  "license": "LGPL-2.1-or-later",
   "type": "xpressengine-plugin",
   "extra": {
     "xpressengine": {
       "title": "SocialLogin",
       "icon": "icon.png",
       "component": {
-        "user/auth/skin/social_login@auth": {
-          "class": "\\Xpressengine\\Plugins\\SocialLogin\\Skins\\AuthSkin",
-          "name": "소셜로그인 스킨",
-          "description": "소셜로그인 스킨입니다. 기본 인증 스킨을 그대로 사용하며, 로그인 페이지에 소셜로그인 버튼을 보여줍니다."
+        "social_login/skin/social_login@default": {
+          "class": "\\Xpressengine\\Plugins\\SocialLogin\\Skins\\DefaultSkin",
+          "name": "소셜로그인 기본 스킨",
+          "description": "소셜로그인 기본 스킨입니다."
         }
       }
     }

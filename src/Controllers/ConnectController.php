@@ -14,6 +14,7 @@
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
+use XePresenter;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Plugin;
 
@@ -37,6 +38,8 @@ class ConnectController extends Controller
     public function __construct(Plugin $plugin)
     {
         $this->plugin = $plugin;
+
+        $this->middleware('guest', ['except' => ['disconnect']]);
     }
 
     public function connect(Request $request, $provider)
@@ -59,12 +62,36 @@ class ConnectController extends Controller
 
         $auth->disconnect();
 
-        return redirect()->back()->with(
-            'alert',
-            [
-                'type' => 'success',
-                'message' => '연결해제 되었습니다'
-            ]
-        );
+        return redirect()->back()->with('alert', ['type' => 'success', 'message' => 'social_login::msgDisconnected']);
+    }
+
+    public function login(Request $request)
+    {
+        $redirectUrl = $request->get('redirectUrl',
+            $request->session()->pull('url.intended') ?: url()->previous());
+
+        if ($redirectUrl !== $request->url()) {
+            $request->session()->put('url.intended', $redirectUrl);
+        }
+
+        $providers = $this->getEnabledProviders();
+        if (count($providers) < 1) {
+            return redirect()->route('login', ['by' => 'email']);
+        }
+
+        XePresenter::setSkinTargetId('social_login');
+
+        return XePresenter::make('login', compact('providers'));
+    }
+
+    protected function getEnabledProviders()
+    {
+        if (!$config = app('xe.config')->get('social_login')) {
+            return [];
+        }
+
+        return collect($config->get('providers'))->filter(function ($info) {
+            return array_get($info, 'activate') === true;
+        });
     }
 }

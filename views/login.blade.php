@@ -1,19 +1,16 @@
 @inject('plugin', 'Xpressengine\Plugins\SocialLogin\Plugin')
+{{ XeFrontend::css($plugin->asset('assets/auth.css'))->load() }}
 <!--소셜로그인-->
 <div class="member __xe_memberLogin">
     <div class="auth-sns v2">
         <h1>{{xe_trans('xe::doLogin')}}</h1>
         <ul>
             @foreach($providers as $provider => $info)
-                @if($info['activate'])<li class="sns-{{ $provider }}"><a href="{{ route('social_login::connect', ['provider'=>$provider]) }}"><i class="xi-{{ $provider }}"></i>{{ $info['title'] }}계정으로 로그인</a></li>@endif
+                <li class="sns-{{ $provider }}"><a href="{{ route('social_login::connect', ['provider'=>$provider]) }}"><i class="xi-{{ $provider }}"></i>{{ xe_trans('social_login::signInBy', ['provider' => xe_trans($info['title'])]) }}</a></li>
             @endforeach
+            <li class="sns-email"><a href="{{ route('login', ['by' => 'email']) }}"><i class="xi-mail-o"></i>{{ xe_trans('social_login::signInBy', ['provider' => xe_trans('xe::email')]) }}</a></li>
         </ul>
-        <a href="#showEmailLogin" onclick="$('.__xe_memberLogin').toggle();return false;" class="xe-btn xe-btn-link">이메일로 로그인하기</a>
+        <p class="auth-text"><a href="{{ route('auth.register') }}">{{xe_trans('xe::doSignUp')}}</a></p>
     </div>
 </div>
 <!--//소셜로그인-->
-
-<!-- 로그인 폼  -->
-<div class="__xe_memberLogin" style="display: none;">
-    @include('user.skins.default.auth.login')
-</div>

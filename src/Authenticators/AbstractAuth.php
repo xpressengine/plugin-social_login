@@ -13,11 +13,11 @@
 
 namespace Xpressengine\Plugins\SocialLogin\Authenticators;
 
-use App\Facades\XeUser;
 use Auth;
 use Laravel\Socialite\SocialiteManager;
 use XeDB;
 use Xpressengine\Support\Exceptions\XpressengineException;
+use Xpressengine\User\Models\User;
 use Xpressengine\User\UserInterface;
 
 /**
@@ -49,14 +49,14 @@ class AbstractAuth
         return 'code';
     }
 
-    public function execute($hasCode)
+    public function execute($hasCode, $stateless = false)
     {
         if (!$hasCode) {
             return $this->authorization();
         }
 
         // get user info from oauth server
-        $userInfo = $this->getAuthenticatedUser();
+        $userInfo = $this->getAuthenticatedUser(null, null, $stateless);
 
         if (\Auth::check() === false) {
             return $this->login($userInfo);
@@ -69,35 +69,30 @@ class AbstractAuth
     {
         // if authorized user info is not saved completely, save user info.
         try {
-            $handler = app('xe.user');
             $userData = $this->resolveUserInfo($userInfo);
-            $user = $this->resolveUser($userData);
 
             // if user not exist, redirect to register page after saving token.
-            if($user === null) {
-
-                $info = [];
-                $info['provider'] = $this->provider;
-                $info['email'] = $userInfo->email;
-                $info['display_name'] = $userData['display_name'];
-                $info['token'] = $userInfo->token;
-                if($userInfo instanceof \Laravel\Socialite\One\User) {
-                    $info['token_secret'] = $userInfo->tokenSecret;
+            if(!$user = $this->resolveUser($userData)) {
+                $config = app('xe.config')->get('user.join');
+                $joinGroup = $config->get('joinGroup');
+                if ($joinGroup !== null) {
+                    $userData['group_id'] = [$joinGroup];
                 }
 
-                $token = app('xe.user.register.tokens')->create('social_login', $info);
-
-                return redirect()->route('auth.register', ['token' => $token->id]);
+                $user = app('xe.user')->create($userData);
             }
         } catch (\Exception $e) {
             throw $e;
         }
 
         // check user's status
-        if ($user->getStatus() === XeUser::STATUS_ACTIVATED) {
+        if ($user->getStatus() === User::STATUS_ACTIVATED) {
             $this->loginMember($user);
         } else {
-            return redirect()->route('login')->with('alert', ['type' => 'danger', 'message' => '사용중지된 계정입니다.']);
+            return redirect()->route('login')->with('alert', [
+                'type' => 'danger',
+                'message' => xe_trans('social_login::disabledAccount')
+            ]);
         }
 
         return redirect()->intended('/');
@@ -126,7 +121,7 @@ class AbstractAuth
 
     public function disconnect()
     {
-        $user = \Auth::user();
+        $user = Auth::user();
 
         $account = $user->getAccountByProvider($this->provider);
 
@@ -138,12 +133,14 @@ class AbstractAuth
         return $this->socialite->driver($this->provider)->redirect();
     }
 
-    public function getAuthenticatedUser($token = null, $tokenSecret = null)
+    public function getAuthenticatedUser($token = null, $tokenSecret = null, $stateless = false)
     {
-
         $provider = $this->socialite->driver($this->provider);
+        if ($stateless === true) {
+            $provider->stateless();
+        }
+        
         if($token !== null) {
-
             if ($provider instanceof \Laravel\Socialite\One\AbstractProvider) {
                 return $provider->userFromTokenAndSecret($token, $tokenSecret);
             } else if ($provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
@@ -196,9 +193,8 @@ class AbstractAuth
                 $existingAccount = $handler->createAccount($existingEmail->user, $accountData);
             } elseif ($existingAccount !== null && $existingEmail !== null) {
                 if ($existingAccount->user_id !== $existingEmail->user_id) {
-                    // email is registered by another user!!
                     $e = new XpressengineException();
-                    $e->setMessage('이미 다른 회원에 의해 등록된 이메일입니다.');
+                    $e->setMessage(xe_trans('social_login::alreadyRegisteredEmail'));
                     throw $e;
                 }
             }
@@ -245,13 +241,13 @@ class AbstractAuth
 
         if ($existingAccount !== null && $existingAccount->user_id !== $id) {
             $e = new XpressengineException();
-            $e->setMessage('이미 다른 회원에 의해 등록된 계정입니다.');
+            $e->setMessage(xe_trans('social_login::alreadyRegisteredAccount'));
             throw $e;
         }
 
         if ($existingEmail !== null && $existingEmail->user_id !== $id) {
             $e = new XpressengineException();
-            $e->setMessage('이미 다른 회원에 의해 등록된 이메일입니다.');
+            $e->setMessage(xe_trans('social_login::alreadyRegisteredEmail'));
             throw $e;
         }
 
