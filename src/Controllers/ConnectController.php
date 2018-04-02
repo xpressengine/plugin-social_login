@@ -39,7 +39,7 @@ class ConnectController extends Controller
     {
         $this->plugin = $plugin;
 
-        $this->middleware('guest', ['except' => ['disconnect']]);
+        $this->middleware('guest', ['except' => ['connect', 'disconnect']]);
     }
 
     public function connect(Request $request, $provider)
