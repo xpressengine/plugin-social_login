@@ -1,7 +1,7 @@
 @inject('plugin', 'Xpressengine\Plugins\SocialLogin\Plugin')
 {{ XeFrontend::css($plugin->asset('assets/auth.css'))->load() }}
 <!--소셜로그인-->
-<div class="member __xe_memberLogin">
+<div class="user __xe_userLogin">
     <div class="auth-sns v2">
         <h1>{{xe_trans('xe::doLogin')}}</h1>
         <ul>
