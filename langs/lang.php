@@ -89,4 +89,8 @@ return [
         'ko' => '이미 다른 회원에 의해 등록된 계정입니다.',
         'en' => 'Account is already registered by another user.',
     ],
+    'unableToDisconnect' => [
+        'ko' => '연결을 해제할 수 없습니다.',
+        'en' => 'Unable to disconnect.',
+    ]
 ];

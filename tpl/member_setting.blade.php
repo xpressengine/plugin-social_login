@@ -15,14 +15,14 @@
                             <i class="xi-{{ $provider }}"></i>{{ xe_trans('social_login::connectedTo', ['provider' => xe_trans($info['title'])]) }}
                         </div>
                         <div class="setting-right">
-                            <button data-link="{{ route("social_login::disconnect", ['provider'=>$provider]) }}" class="__xe_socialDisconnect xe-btn xe-btn-text">{{ xe_trans('social_login::disconnect') }}</button>
+                            <button data-link="{{ route("social_login::disconnect", ['provider' => $provider]) }}" class="__xe_socialDisconnect xe-btn xe-btn-text">{{ xe_trans('social_login::disconnect') }}</button>
                         </div>
                     @else
                         <div class="setting-left">
                             <i class="xi-{{ $provider }}"></i>{{ xe_trans('social_login::connectableTo', ['provider' => xe_trans($info['title'])]) }}
                         </div>
                         <div class="setting-right">
-                            <button data-link="{{ route("social_login::connect", ['provider'=>$provider]) }}" class="__xe_socialConnect xe-btn xe-btn-text">{{ xe_trans('social_login::connect') }}</button>
+                            <button data-link="{{ route("social_login::auth", ['provider' => $provider, '_p' => 1]) }}" class="__xe_socialConnect xe-btn xe-btn-text">{{ xe_trans('social_login::connect') }}</button>
                         </div>
                     @endif
                 </div>

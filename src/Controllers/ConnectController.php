@@ -16,7 +16,10 @@ namespace Xpressengine\Plugins\SocialLogin\Controllers;
 use App\Http\Controllers\Controller;
 use XePresenter;
 use Xpressengine\Http\Request;
-use Xpressengine\Plugins\SocialLogin\Plugin;
+use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsAccountException;
+use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsEmailException;
+use Xpressengine\Support\Exceptions\HttpXpressengineException;
+use Xpressengine\User\Models\User;
 
 /**
  * @category    SocialLogin
@@ -28,39 +31,65 @@ use Xpressengine\Plugins\SocialLogin\Plugin;
  */
 class ConnectController extends Controller
 {
-    protected $plugin = null;
-
-    /**
-     * SocialLoginController constructor.
-     *
-     * @param \Xpressengine\Plugins\SocialLogin\Plugin $plugin
-     */
-    public function __construct(Plugin $plugin)
+    public function __construct()
     {
-        $this->plugin = $plugin;
+        $this->middleware('guest', ['except' => ['auth', 'connect', 'disconnect']]);
+        $this->middleware('auth', ['only' => ['disconnect']]);
+    }
 
-        $this->middleware('guest', ['except' => ['connect', 'disconnect']]);
+    public function auth(Request $request, $provider)
+    {
+        if ($request->get('_p')) {
+            $request->session()->put('social_login::pop', true);
+        }
+
+        return app('xe.social_login')->authorize($provider);
     }
 
     public function connect(Request $request, $provider)
     {
-        $auth = $this->plugin->getAuthenticator($provider);
+        try {
+            $user = app('xe.social_login')->execute($provider);
+        } catch (ExistsAccountException $e) {
+            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredAccount'), 409, $e);
+        } catch (ExistsEmailException $e) {
+            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredEmail'), 409, $e);
+        }
 
-        $param = $auth->getCallbackParameter();
+        if (!auth()->check()) {
+            if ($user->getStatus() !== User::STATUS_ACTIVATED) {
+                return redirect()->route('login')->with('alert', [
+                    'type' => 'danger',
+                    'message' => xe_trans('social_login::disabledAccount')
+                ]);
+            }
 
-        $hasCode = $request->has($param);
-        return $auth->execute($hasCode);
+            auth()->login($user);
+        }
+
+        if ($request->session()->pull('social_login::pop')) {
+            return "
+                <script>
+                    if (window.opener) {
+                        window.opener.location.reload();
+                    }
+                    
+                    window.close();
+                </script>
+            ";
+        }
+
+        return redirect()->intended('/');
     }
 
-    public function disconnect(Request $request, $provider)
+    public function disconnect($provider)
     {
-        // execute auth
-        $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
-        $className = $namespace.studly_case($provider).'Auth';
-        $auth = new $className($provider);
-        $param = $auth->getCallbackParameter();
+        $user = auth()->user();
+        if (count(app('xe.social_login')->getConnected($user)) === 1 && !$user->password) {
+            $this->throwHttpException(xe_trans('social_login::unableToDisconnect'), 406);
+        }
 
-        $auth->disconnect();
+        app('xe.social_login')->disconnect($user, $provider);
 
         return redirect()->back()->with('alert', ['type' => 'success', 'message' => 'social_login::msgDisconnected']);
     }
@@ -93,5 +122,13 @@ class ConnectController extends Controller
         return collect($config->get('providers'))->filter(function ($info) {
             return array_get($info, 'activate') === true;
         });
+    }
+
+    protected function throwHttpException($msg, $code = null, $previous = null)
+    {
+        $e = new HttpXpressengineException([], $code, $previous);
+        $e->setMessage($msg);
+
+        throw $e;
     }
 }

@@ -28,15 +28,16 @@ Route::settings('social_login', function () {
 });
 
 Route::fixed('social_login', function () {
+    Route::group(['prefix' => 'auth'], function () {
+        Route::get('{provider}', ['as' => 'social_login::auth', 'uses' => 'ConnectController@auth']);
+    });
+
     Route::group(['prefix' => 'login'], function () {
         Route::get('/', ['as' => 'social_login::login', 'uses' => 'ConnectController@login']);
-        Route::get('{provider}', ['as' => 'social_login::connect', 'uses' => 'ConnectController@connect',]);
+        Route::get('{provider}', ['as' => 'social_login::connect', 'uses' => 'ConnectController@connect']);
     });
     // register each provider's connect page
     Route::group(['prefix' => 'disconnect', 'middleware' => 'auth'], function () {
-        Route::get('{provider}', [
-            'as' => 'social_login::disconnect',
-            'uses' => 'ConnectController@disconnect',
-        ]);
+        Route::get('{provider}', ['as' => 'social_login::disconnect', 'uses' => 'ConnectController@disconnect']);
     });
 });

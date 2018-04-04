@@ -20,9 +20,9 @@
                     <label>{{ xe_trans('social_login::socialLoginProviderSetting') }}</label>
                     <p>{!! xe_trans('social_login::descSocialLoginProviderSetting') !!}</p>
                     <div class="list-group">
-                    @foreach(['github', 'facebook', 'naver', 'twitter', 'google'] as $provider)
+                    @foreach($providers as $provider => $info)
                         <div class="list-group-item __xe_social_login {{ $provider }}">
-                        @include('social_login::tpl.show', compact('provider', 'providers'))
+                        @include('social_login::tpl.show', compact('provider', 'info'))
                         </div>
                     @endforeach
                     </div>

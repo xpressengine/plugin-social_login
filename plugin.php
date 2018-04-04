@@ -9,66 +9,28 @@
 
 namespace Xpressengine\Plugins\SocialLogin;
 
+use Laravel\Socialite\Contracts\Factory as Socialite;
 use Route;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use XeLang;
 use Xpressengine\Plugin\AbstractPlugin;
-use Xpressengine\Plugins\SocialLogin\Authenticators\AbstractAuth;
+use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
 use Xpressengine\User\UserHandler;
-use Xpressengine\User\UserInterface;
 
 class Plugin extends AbstractPlugin
 {
-    protected $providers = [];
-
     public function install()
     {
-        $providers = require __DIR__.'/option.php';
-
-        foreach ($providers as $provider => $info) {
-            if ($info['client_id']) {
-                $providers[$provider]['activate'] = true;
-            } else {
-                $providers[$provider]['activate'] = false;
-            }
-        }
-
-        app('xe.config')->set('social_login', [
-            'providers' => $providers
-        ]);
-    }
-    public function checkUpdated()
-    {
-        $config = app('xe.config')->get('social_login');
-        if ($config === null) {
-            return false;
-        }
-        return true;
+        $this->importConfig();
+        $this->importLang();
     }
 
     public function update()
     {
-        $config = app('xe.config')->get('social_login');
-        $providers = require __DIR__.'/option.php';
-
-        foreach ($providers as $provider => $info) {
-            if ($info['client_id'] !== '') {
-                $providers[$provider]['activate'] = true;
-            } else {
-                $providers[$provider]['activate'] = false;
-            }
-        }
-
-        if($config === null) {
-            app('xe.config')->set('social_login', [
-                'providers' => $providers
-            ]);
-        }
+        $this->importLang();
     }
 
     public function boot()
     {
-        $this->providers = $this->resolveProviders();
-
         // register settings menu
         $this->registerSettingsMenu();
 
@@ -78,33 +40,69 @@ class Plugin extends AbstractPlugin
         // register route
         $this->routes();
 
-        // set config for redirect
-        foreach ($this->providers as $provider => $info) {
-            array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
-            config(['services.'.$provider => $info]);
-        }
-
         app('router')->pushMiddlewareToGroup('web', Middleware::class);
     }
 
-    public function getProviders()
+    public function register()
     {
-        return $this->providers;
+        app()->singleton(Handler::class, function ($app) {
+            $handler = new Handler($app[Socialite::class], $app['xe.user'], $app['xe.db'], $app['xe.config']);
+
+            $handler->setRequest($app['request']);
+
+            $app->refresh('request', $handler, 'setRequest');
+
+            return $handler;
+        });
+        app()->alias(Handler::class, 'xe.social_login');
+
+        app()->resolving('xe.social_login', function ($handler) {
+            $providers = $handler->getConfig();
+            if (empty($providers)) {
+                $this->importConfig();
+                $providers = $handler->getConfig();
+            }
+
+            // set config for redirect
+            foreach ($providers as $provider => $info) {
+                array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
+                config(['services.'.$provider => $info]);
+            }
+        });
+
+        app()->resolving(Socialite::class, function ($socialite) {
+            $socialite->extend('naver', function ($app) {
+                $config = $app['config']['services.naver'];
+                return new NaverProvider(
+                    $app['request'], $config['client_id'],
+                    $config['client_secret'], $config['redirect']
+                );
+            });
+        });
     }
 
-    public function getAuthenticator($provider)
+    protected function importConfig()
     {
-        $namespace = 'Xpressengine\\Plugins\\SocialLogin\\Authenticators\\';
-        $className = $namespace.studly_case($provider).'Auth';
+        $providers = require __DIR__.'/option.php';
 
-        $proxyClass = app('xe.interception')->proxy($className, 'SocialLoginAuth');
+        foreach ($providers as $provider => $info) {
+            $providers[$provider]['activate'] = !!$info['client_id'];
+        }
 
-        return new $proxyClass($provider);
+        app('xe.config')->set('social_login', ['providers' => $providers]);
+    }
+
+    protected function importLang()
+    {
+        XeLang::putFromLangDataSource('social_login', $this->path('langs/lang.php'));
     }
 
     private function routes()
     {
-        Route::group(['namespace' => 'Xpressengine\\Plugins\\SocialLogin\\Controllers'], function () {
+        Route::group([
+            'namespace' => 'Xpressengine\\Plugins\\SocialLogin\\Controllers',
+            'middleware' => ['web']
+        ], function () {
             require __DIR__ . '/routes.php';
         });
     }
@@ -127,45 +125,18 @@ class Plugin extends AbstractPlugin
     {
         UserHandler::setSettingsSections('social_login@section', [
             'title' => 'social_login::socialLoginSetting',
-            'content' => function ($member) {
-                return $this->getMemberSettingSection($member);
+            'content' => function ($user) {
+                $providers = app('xe.social_login')->getConfig();
+                $accountList = data_get($user, 'accounts', []);
+
+                $accounts = [];
+
+                foreach ($accountList as $account) {
+                    $accounts[$account->provider] = $account;
+                }
+
+                return view('social_login::tpl.member_setting', compact('accounts', 'providers'));
             }
         ]);
-    }
-
-    protected function getMemberSettingSection(UserInterface $member)
-    {
-        $providers = $this->providers;
-        $accountList = data_get($member, 'accounts', []);
-
-        $accounts = [];
-
-        foreach ($accountList as $account) {
-            $accounts[$account->provider] = $account;
-        }
-
-        return view('social_login::tpl.member_setting', compact('accounts', 'providers'));
-    }
-
-    private function resolveProviders()
-    {
-        // set config
-        $config = app('xe.config')->get('social_login');
-        if($config === null) {
-            return [];
-        }
-        $providers = $config->get('providers');
-
-        foreach ($providers as $provider => $info) {
-            if(isset($info['use'])) {
-                $info['activate'] = $info['use'];
-                unset($info['use']);
-                $providers[$provider] = $info;
-            }
-        }
-
-        app('xe.config')->setVal('social_login.providers', $providers);
-
-        return $providers;
     }
 }

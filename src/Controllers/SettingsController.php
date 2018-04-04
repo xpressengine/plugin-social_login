@@ -17,7 +17,6 @@ use App\Http\Controllers\Controller;
 use XePresenter;
 use XeSkin;
 use Xpressengine\Http\Request;
-use Xpressengine\Plugins\SocialLogin\Plugin;
 
 /**
  * @category    SocialLogin
@@ -29,25 +28,9 @@ use Xpressengine\Plugins\SocialLogin\Plugin;
  */
 class SettingsController extends Controller
 {
-    protected $plugin = null;
-
-    /**
-     * SocialLoginController constructor.
-     *
-     * @param \Xpressengine\Plugins\SocialLogin\Plugin $plugin
-     */
-    public function __construct(Plugin $plugin)
-    {
-        $this->plugin = $plugin;
-    }
-
     public function index()
     {
-        if($this->plugin->checkUpdated() === false) {
-            return redirect()->route('settings.plugins.show', 'social_login')->with('alert', ['type' => 'danger', 'message' => '소셜로그인 플러그인의 업데이트가 필요합니다. 업데이트 실행해주십시오.']);
-        }
-
-        $providers = $this->plugin->getProviders();
+        $providers = app('xe.social_login')->getConfig();
 
         $skins = XeSkin::getList('social_login');
         $selected = XeSkin::getAssigned('social_login');
@@ -62,28 +45,32 @@ class SettingsController extends Controller
 
     public function show($provider)
     {
-        $providers = $this->plugin->getProviders();
-        return api_render('social_login::tpl.show', compact('providers', 'provider'));
+        return api_render('social_login::tpl.show', [
+            'provider' => $provider,
+            'info' => app('xe.social_login')->getConfig($provider)
+        ]);
     }
 
     public function edit($provider)
     {
-        $providers = $this->plugin->getProviders();
-        return api_render('social_login::tpl.edit', compact('providers', 'provider'));
+        return api_render('social_login::tpl.edit', [
+            'provider' => $provider,
+            'info' => app('xe.social_login')->getConfig($provider)
+        ]);
     }
 
     public function update(Request $request, $provider)
     {
         $inputs = $request->only('activate','client_id','client_secret','title');
-        $inputs['activate'] = $inputs['activate'] === 'Y' ? true : false;
-        $config = app('xe.config')->get('social_login');
-        $providers = $config->get('providers');
-        $providers[$provider] = $inputs;
-        app('xe.config')->setVal('social_login.providers', $providers);
+        $inputs['activate'] = $inputs['activate'] === 'Y';
 
-        $url = route('social_login::settings.provider.show', ['provider'=> $provider]);
+        app('xe.social_login')->setConfig($provider, $inputs);
+
         return XePresenter::makeApi([
-            'type' => 'success', 'message' => xe_trans('xe::saved'), 'url' => $url, 'provider' => $provider
+            'type' => 'success',
+            'message' => xe_trans('xe::saved'),
+            'url' => route('social_login::settings.provider.show', ['provider' => $provider]),
+            'provider' => $provider
         ]);
     }
 
