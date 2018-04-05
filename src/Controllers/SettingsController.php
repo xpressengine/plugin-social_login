@@ -1,14 +1,14 @@
 <?php
 /**
- *  This file is part of the Xpressengine package.
+ * SettingsController.php
  *
- * PHP version 5
+ * PHP version 7
  *
- * @category
- * @package     Xpressengine\
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
  * @author      XE Team (developers) <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
  * @link        http://www.xpressengine.com
  */
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
@@ -20,10 +20,10 @@ use Xpressengine\Http\Request;
 
 /**
  * @category    SocialLogin
- * @package     Xpressengine\Plugins\SocialLogin\Controllers
+ * @package     Xpressengine\Plugins\SocialLogin
  * @author      XE Team (developers) <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
  * @link        http://www.xpressengine.com
  */
 class SettingsController extends Controller

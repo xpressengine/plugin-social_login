@@ -1,22 +1,29 @@
 <?php
-
 /**
  * Middleware.php
  *
- * PHP version 5
+ * PHP version 7
  *
- * @category
- * @package
- * @author      XE Developers <developers@xpressengine.com>
- * @copyright   2015 Copyright (C) NAVER Corp. <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
- * @link        https://xpressengine.io
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
+ * @author      XE Team (developers) <developers@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @link        http://www.xpressengine.com
  */
 
 namespace Xpressengine\Plugins\SocialLogin;
 
 use Closure;
 
+/**
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
+ * @author      XE Team (developers) <developers@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @link        http://www.xpressengine.com
+ */
 class Middleware
 {
     /**

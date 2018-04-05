@@ -1,10 +1,15 @@
 <?php
 /**
- * @author      XE Developers <developers@xpressengine.com>
- * @copyright   2015 Copyright (C) NAVER Corp. <http://www.navercorp.com>
- * @license     LGPL-2.1
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * @link        https://xpressengine.io
+ * NaverProvider.php
+ *
+ * PHP version 7
+ *
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
+ * @author      XE Team (developers) <developers@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @link        http://www.xpressengine.com
  */
 
 namespace Xpressengine\Plugins\SocialLogin\Providers;
@@ -15,6 +20,14 @@ use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\User;
 
+/**
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
+ * @author      XE Team (developers) <developers@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @link        http://www.xpressengine.com
+ */
 class NaverProvider extends AbstractProvider implements ProviderInterface
 {
 

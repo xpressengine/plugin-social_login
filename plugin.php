@@ -1,10 +1,15 @@
 <?php
 /**
- * @author      XE Developers <developers@xpressengine.com>
- * @copyright   2015 Copyright (C) NAVER Corp. <http://www.navercorp.com>
- * @license     LGPL-2.1
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- * @link        https://xpressengine.io
+ * Plugin.php
+ *
+ * PHP version 7
+ *
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
+ * @author      XE Team (developers) <developers@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @link        http://www.xpressengine.com
  */
 
 namespace Xpressengine\Plugins\SocialLogin;
@@ -16,6 +21,14 @@ use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
 use Xpressengine\User\UserHandler;
 
+/**
+ * @category    SocialLogin
+ * @package     Xpressengine\Plugins\SocialLogin
+ * @author      XE Team (developers) <developers@xpressengine.com>
+ * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @link        http://www.xpressengine.com
+ */
 class Plugin extends AbstractPlugin
 {
     public function install()
