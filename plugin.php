@@ -59,7 +59,7 @@ class Plugin extends AbstractPlugin
     public function register()
     {
         app()->singleton(Handler::class, function ($app) {
-            $handler = new Handler($app[Socialite::class], $app['xe.user'], $app['xe.db'], $app['xe.config']);
+            $handler = new Handler(new Socialite($app), $app['xe.user'], $app['xe.db'], $app['xe.config']);
 
             $handler->setRequest($app['request']);
 
