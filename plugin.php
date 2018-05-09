@@ -15,6 +15,7 @@
 namespace Xpressengine\Plugins\SocialLogin;
 
 use Laravel\Socialite\Contracts\Factory as Socialite;
+use Laravel\Socialite\SocialiteManager;
 use Route;
 use XeLang;
 use Xpressengine\Plugin\AbstractPlugin;
@@ -59,7 +60,7 @@ class Plugin extends AbstractPlugin
     public function register()
     {
         app()->singleton(Handler::class, function ($app) {
-            $handler = new Handler(new Socialite($app), $app['xe.user'], $app['xe.db'], $app['xe.config']);
+            $handler = new Handler(new SocialiteManager($app), $app['xe.user'], $app['xe.db'], $app['xe.config']);
 
             $handler->setRequest($app['request']);
 
