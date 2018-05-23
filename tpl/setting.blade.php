@@ -37,26 +37,26 @@
 
 {!! app('xe.frontend')->html('social_login.update')->content("
 <script>
-    jQuery(function($) {
-        window.updateSocialLogin = function (data) {
-            XE.toast(data.type, data.message);
-            XE.page(data.url, '.__xe_social_login.'+data.provider);
-        };
-        $('select', '#form-skin').change(function () {
-            $('.btns', '#form-skin').slideDown();
-        });
-        $('#form-skin').submit(function (e) {
-            e.preventDefault();
-            $.ajax({
-                url: '".route('social_login::settings.skin.update')."',
-                type: 'put',
-                data: $(this).serialize(),
-                success: function () {
-                    $('.btns', '#form-skin').slideUp();
-                    XE.toast('success', '".xe_trans('xe::saved')."');
-                }
-            });
+window.jQuery(function($) {
+    window.updateSocialLogin = function (data) {
+        window.XE.toast(data.type, data.message);
+        window.XE.page(data.url, '.__xe_social_login.'+data.provider);
+    };
+    $('select', '#form-skin').change(function () {
+        $('.btns', '#form-skin').slideDown();
+    });
+    $('#form-skin').submit(function (e) {
+        e.preventDefault();
+        XE.ajax({
+            url: '".route('social_login::settings.skin.update')."',
+            type: 'put',
+            data: $(this).serialize(),
+            success: function () {
+                $('.btns', '#form-skin').slideUp();
+                XE.toast('success', '".xe_trans('xe::saved')."');
+            }
         });
     });
+});
 </script>
 ")->load() !!}

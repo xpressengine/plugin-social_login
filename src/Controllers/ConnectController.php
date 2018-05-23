@@ -70,11 +70,11 @@ class ConnectController extends Controller
         if ($request->session()->pull('social_login::pop')) {
             return "
                 <script>
-                    if (window.opener) {
-                        window.opener.location.reload();
-                    }
-                    
-                    window.close();
+                if (window.opener) {
+                    window.opener.location.reload();
+                }
+
+                window.close();
                 </script>
             ";
         }

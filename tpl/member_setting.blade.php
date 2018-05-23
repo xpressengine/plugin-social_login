@@ -33,13 +33,13 @@
 
 {{ XeFrontend::html('social_login::addlink')->content("
 <script>
-    $(function () {
-        $('.__xe_socialConnect').click(function(){
-            window.open($(this).data('link'), 'social_login_connect',\"width=600,height=400,scrollbars=no\");
-        });
-        $('.__xe_socialDisconnect').click(function(){
-            location.href = $(this).data('link');
-        })
+window.jQuery(function ($) {
+    $('.__xe_socialConnect').click(function(){
+        window.open($(this).data('link'), 'social_login_connect',\"width=600,height=400,scrollbars=no\");
     });
+    $('.__xe_socialDisconnect').click(function(){
+        location.href = $(this).data('link');
+    })
+});
 </script>
 ")->load() }}
