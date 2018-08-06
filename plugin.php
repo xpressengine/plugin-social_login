@@ -20,6 +20,7 @@ use XeLang;
 use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
 use Xpressengine\User\UserHandler;
+use XeInterception;
 
 /**
  * @category    SocialLogin
@@ -59,7 +60,8 @@ class Plugin extends AbstractPlugin
     public function register()
     {
         app()->singleton(Handler::class, function ($app) {
-            $handler = new Handler($app[Socialite::class], $app['xe.user'], $app['xe.db'], $app['xe.config']);
+            $proxyHandler = XeInterception::proxy(Handler::class, 'SocialLoginHandler');
+            $handler = new $proxyHandler($app[Socialite::class], $app['xe.user'], $app['xe.db'], $app['xe.config']);
 
             $handler->setRequest($app['request']);
 
