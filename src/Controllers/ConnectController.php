@@ -75,7 +75,7 @@ class ConnectController extends Controller
                 var redirectUrl = '{$redirectUrl}';
                 if (window.opener && redirectUrl != '/') {
                     window.opener.location.replace(redirectUrl);
-                else if (window.opener) {
+                } else if (window.opener) {
                     window.opener.location.reload();
                 }
 
