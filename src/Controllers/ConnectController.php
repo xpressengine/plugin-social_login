@@ -68,9 +68,14 @@ class ConnectController extends Controller
         }
 
         if ($request->session()->pull('social_login::pop')) {
+            $redirectUrl = $request->session()->pull('url.intended') ?: '/';
+
             return "
                 <script>
-                if (window.opener) {
+                var redirectUrl = '{$redirectUrl}';
+                if (window.opener && redirectUrl != '/') {
+                    window.opener.location.replace(redirectUrl);
+                else if (window.opener) {
                     window.opener.location.reload();
                 }
 
@@ -79,7 +84,7 @@ class ConnectController extends Controller
             ";
         }
 
-        return redirect()->intended('/');
+        return redirect()->intended($redirectUrl);
     }
 
     public function disconnect($provider)
