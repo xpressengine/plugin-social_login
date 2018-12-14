@@ -2,13 +2,15 @@
 /**
  * Handler.php
  *
+ * This file is part of the Xpressengine package.
+ *
  * PHP version 7
  *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 
@@ -27,11 +29,13 @@ use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsEmailException;
 use Xpressengine\User\UserHandler;
 
 /**
+ * Handler
+ *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 class Handler
@@ -64,10 +68,10 @@ class Handler
     /**
      * Handler constructor.
      *
-     * @param Socialite $socialite
-     * @param UserHandler $users
-     * @param DatabaseHandler $db
-     * @param ConfigManager $cfg
+     * @param Socialite       $socialite socialite
+     * @param UserHandler     $users     user handler
+     * @param DatabaseHandler $db        database handler
+     * @param ConfigManager   $cfg       config manager
      */
     public function __construct(Socialite $socialite, UserHandler $users, DatabaseHandler $db, ConfigManager $cfg)
     {
@@ -78,7 +82,8 @@ class Handler
     }
 
     /**
-     * @param string $provider
+     * @param string $provider provider
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function authorize($provider)
@@ -87,9 +92,11 @@ class Handler
     }
 
     /**
-     * @param string $provider
-     * @param bool $stateless
+     * @param string $provider  provider
+     * @param bool   $stateless stateless
+     *
      * @return Authenticatable|\Xpressengine\User\UserInterface
+     * @throws \Exception
      */
     public function execute($provider, $stateless = false)
     {
@@ -100,10 +107,11 @@ class Handler
     }
 
     /**
-     * @param Provider $provider
-     * @param string|null $token
-     * @param string|null $tokenSecret
-     * @param bool $stateless
+     * @param Provider    $provider    provider
+     * @param string|null $token       token
+     * @param string|null $tokenSecret token secret
+     * @param bool        $stateless   stateless
+     *
      * @return UserContract
      */
     public function getUser(Provider $provider, $token = null, $tokenSecret = null, $stateless = false)
@@ -112,10 +120,10 @@ class Handler
             $provider->stateless();
         }
 
-        if($token !== null) {
+        if ($token !== null) {
             if ($provider instanceof \Laravel\Socialite\One\AbstractProvider) {
                 return $provider->userFromTokenAndSecret($token, $tokenSecret);
-            } else if ($provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
+            } elseif ($provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
                 return $provider->userFromToken($token);
             }
         }
@@ -124,8 +132,9 @@ class Handler
     }
 
     /**
-     * @param UserContract $userInfo
-     * @param string $provider
+     * @param UserContract $userInfo user info
+     * @param string       $provider provider
+     *
      * @return Authenticatable|\Xpressengine\User\UserInterface
      * @throws \Exception
      */
@@ -188,6 +197,8 @@ class Handler
     }
 
     /**
+     * current user
+     *
      * @return Authenticatable|null
      */
     protected function currentUser()
@@ -201,8 +212,11 @@ class Handler
     }
 
     /**
-     * @param UserContract $userInfo
-     * @param string $provider
+     * find account
+     *
+     * @param UserContract $userInfo user info
+     * @param string       $provider provider
+     *
      * @return \Xpressengine\User\Models\UserAccount|null
      */
     protected function findAccount(UserContract $userInfo, $provider)
@@ -213,7 +227,8 @@ class Handler
     }
 
     /**
-     * @param string $displayName
+     * @param string $displayName display name
+     *
      * @return string
      */
     private function resolveDisplayName($displayName)
@@ -224,15 +239,18 @@ class Handler
             if (!$this->users->users()->where('display_name', $name)->first()) {
                 break;
             }
-            $name = $displayName.'_'.$i++;
+            $name = $displayName . '_' . $i++;
         }
 
         return $name;
     }
 
     /**
-     * @param Authenticatable $user
-     * @param string $provider
+     * disconnect
+     *
+     * @param Authenticatable $user     user
+     * @param string          $provider provider
+     *
      * @return void
      */
     public function disconnect(Authenticatable $user, $provider)
@@ -247,7 +265,10 @@ class Handler
     }
 
     /**
-     * @param Authenticatable $user
+     * get connected
+     *
+     * @param Authenticatable $user user
+     *
      * @return \Xpressengine\User\Models\UserAccount[]
      */
     public function getConnected(Authenticatable $user)
@@ -256,7 +277,10 @@ class Handler
     }
 
     /**
-     * @param Request $request
+     * set request
+     *
+     * @param Request $request request
+     *
      * @return void
      */
     public function setRequest(Request $request)
@@ -265,7 +289,10 @@ class Handler
     }
 
     /**
-     * @param string|null $provider
+     * get config
+     *
+     * @param string|null $provider provider
+     *
      * @return array|null
      */
     public function getConfig($provider = null)
@@ -280,8 +307,11 @@ class Handler
     }
 
     /**
-     * @param string $provider
-     * @param array $config
+     * set config
+     *
+     * @param string $provider provider
+     * @param array  $config   config
+     *
      * @return void
      */
     public function setConfig($provider, array $config)

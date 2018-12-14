@@ -2,15 +2,18 @@
 /**
  * ConnectController.php
  *
+ * This file is part of the Xpressengine package.
+ *
  * PHP version 7
  *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
+
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -22,21 +25,34 @@ use Xpressengine\Support\Exceptions\HttpXpressengineException;
 use Xpressengine\User\Models\User;
 
 /**
+ * ConnectController
+ *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 class ConnectController extends Controller
 {
+    /**
+     * ConnectController constructor.
+     */
     public function __construct()
     {
         $this->middleware('guest', ['except' => ['auth', 'connect', 'disconnect']]);
         $this->middleware('auth', ['only' => ['disconnect']]);
     }
 
+    /**
+     * auth
+     *
+     * @param Request $request  request
+     * @param string  $provider provider
+     *
+     * @return mixed
+     */
     public function auth(Request $request, $provider)
     {
         if ($request->get('_p')) {
@@ -46,6 +62,14 @@ class ConnectController extends Controller
         return app('xe.social_login')->authorize($provider);
     }
 
+    /**
+     * connect
+     *
+     * @param Request $request  request
+     * @param string  $provider provider
+     *
+     * @return \Illuminate\Http\RedirectResponse|string
+     */
     public function connect(Request $request, $provider)
     {
         try {
@@ -87,6 +111,13 @@ class ConnectController extends Controller
         return redirect()->intended($redirectUrl);
     }
 
+    /**
+     * disconnect
+     *
+     * @param string $provider provider
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function disconnect($provider)
     {
         $user = auth()->user();
@@ -99,10 +130,19 @@ class ConnectController extends Controller
         return redirect()->back()->with('alert', ['type' => 'success', 'message' => 'social_login::msgDisconnected']);
     }
 
+    /**
+     * login
+     *
+     * @param Request $request request
+     *
+     * @return \Illuminate\Http\RedirectResponse|mixed|\Xpressengine\Presenter\Presentable
+     */
     public function login(Request $request)
     {
-        $redirectUrl = $request->get('redirectUrl',
-            $request->session()->pull('url.intended') ?: url()->previous());
+        $redirectUrl = $request->get(
+            'redirectUrl',
+            $request->session()->pull('url.intended') ?: url()->previous()
+        );
 
         if ($redirectUrl !== $request->url()) {
             $request->session()->put('url.intended', $redirectUrl);
@@ -118,6 +158,11 @@ class ConnectController extends Controller
         return XePresenter::make('login', compact('providers'));
     }
 
+    /**
+     * get enabled providers
+     *
+     * @return array|\Illuminate\Support\Collection
+     */
     protected function getEnabledProviders()
     {
         if (!$config = app('xe.config')->get('social_login')) {
@@ -129,6 +174,16 @@ class ConnectController extends Controller
         });
     }
 
+    /**
+     * throw http exception
+     *
+     * @param string $msg      massage
+     * @param null   $code     code
+     * @param null   $previous previous
+     *
+     * @return void
+     * @throws HttpXpressengineException
+     */
     protected function throwHttpException($msg, $code = null, $previous = null)
     {
         $e = new HttpXpressengineException([], $code, $previous);

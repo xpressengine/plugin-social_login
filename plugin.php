@@ -2,13 +2,15 @@
 /**
  * Plugin.php
  *
+ * This file is part of the Xpressengine package.
+ *
  * PHP version 7
  *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 
@@ -23,26 +25,43 @@ use Xpressengine\User\UserHandler;
 use XeInterception;
 
 /**
+ * Plugin
+ *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 class Plugin extends AbstractPlugin
 {
+    /**
+     * install
+     *
+     * @return void
+     */
     public function install()
     {
         $this->importConfig();
         $this->importLang();
     }
 
+    /**
+     * update
+     *
+     * @return void
+     */
     public function update()
     {
         $this->importLang();
     }
 
+    /**
+     * boot
+     *
+     * @return void
+     */
     public function boot()
     {
         // register settings menu
@@ -57,6 +76,11 @@ class Plugin extends AbstractPlugin
         app('router')->pushMiddlewareToGroup('web', Middleware::class);
     }
 
+    /**
+     * register
+     *
+     * @return void
+     */
     public function register()
     {
         app()->singleton(Handler::class, function ($app) {
@@ -81,7 +105,7 @@ class Plugin extends AbstractPlugin
             // set config for redirect
             foreach ($providers as $provider => $info) {
                 array_set($info, 'redirect', route('social_login::connect', ['provider' => $provider]));
-                config(['services.'.$provider => $info]);
+                config(['services.' . $provider => $info]);
             }
         });
 
@@ -89,16 +113,23 @@ class Plugin extends AbstractPlugin
             $socialite->extend('naver', function ($app) {
                 $config = $app['config']['services.naver'];
                 return new NaverProvider(
-                    $app['request'], $config['client_id'],
-                    $config['client_secret'], $config['redirect']
+                    $app['request'],
+                    $config['client_id'],
+                    $config['client_secret'],
+                    $config['redirect']
                 );
             });
         });
     }
 
+    /**
+     * import config
+     *
+     * @return void
+     */
     protected function importConfig()
     {
-        $providers = require __DIR__.'/option.php';
+        $providers = require __DIR__ . '/option.php';
 
         foreach ($providers as $provider => $info) {
             $providers[$provider]['activate'] = !!$info['client_id'];
@@ -107,11 +138,21 @@ class Plugin extends AbstractPlugin
         app('xe.config')->set('social_login', ['providers' => $providers]);
     }
 
+    /**
+     * import lang
+     *
+     * @return void
+     */
     protected function importLang()
     {
         XeLang::putFromLangDataSource('social_login', $this->path('langs/lang.php'));
     }
 
+    /**
+     * register route
+     *
+     * @return void
+     */
     private function routes()
     {
         Route::group([
@@ -122,6 +163,11 @@ class Plugin extends AbstractPlugin
         });
     }
 
+    /**
+     * register settings menu
+     *
+     * @return void
+     */
     private function registerSettingsMenu()
     {
         app('xe.register')->push(
@@ -136,6 +182,11 @@ class Plugin extends AbstractPlugin
         );
     }
 
+    /**
+     * register section
+     *
+     * @return void
+     */
     private function registerSection()
     {
         UserHandler::setSettingsSections('social_login@section', [

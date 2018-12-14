@@ -2,15 +2,18 @@
 /**
  * SettingsController.php
  *
+ * This file is part of the Xpressengine package.
+ *
  * PHP version 7
  *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
+
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -19,15 +22,22 @@ use XeSkin;
 use Xpressengine\Http\Request;
 
 /**
+ * SettingsController
+ *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 class SettingsController extends Controller
 {
+    /**
+     * index
+     *
+     * @return mixed|\Xpressengine\Presenter\Presentable
+     */
     public function index()
     {
         $providers = app('xe.social_login')->getConfig();
@@ -43,6 +53,13 @@ class SettingsController extends Controller
         return XePresenter::make('social_login::tpl.setting', compact('providers', 'skins', 'selected'));
     }
 
+    /**
+     * show
+     *
+     * @param string $provider provider
+     *
+     * @return mixed
+     */
     public function show($provider)
     {
         return api_render('social_login::tpl.show', [
@@ -51,6 +68,13 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * edit
+     *
+     * @param string $provider provider
+     *
+     * @return mixed
+     */
     public function edit($provider)
     {
         return api_render('social_login::tpl.edit', [
@@ -59,9 +83,17 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * update
+     *
+     * @param Request $request  request
+     * @param string  $provider provider
+     *
+     * @return mixed|\Xpressengine\Presenter\Presentable
+     */
     public function update(Request $request, $provider)
     {
-        $inputs = $request->only('activate','client_id','client_secret','title');
+        $inputs = $request->only('activate', 'client_id', 'client_secret', 'title');
         $inputs['activate'] = $inputs['activate'] === 'Y';
 
         app('xe.social_login')->setConfig($provider, $inputs);
@@ -74,6 +106,13 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * update skin
+     *
+     * @param Request $request request
+     *
+     * @return void
+     */
     public function updateSkin(Request $request)
     {
         if ($skin = XeSkin::get($request->get('skin'))) {

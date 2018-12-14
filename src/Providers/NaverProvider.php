@@ -2,13 +2,15 @@
 /**
  * NaverProvider.php
  *
+ * This file is part of the Xpressengine package.
+ *
  * PHP version 7
  *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 
@@ -21,17 +23,23 @@ use Laravel\Socialite\Two\ProviderInterface;
 use Laravel\Socialite\Two\User;
 
 /**
+ * NaverProvider
+ *
  * @category    SocialLogin
  * @package     Xpressengine\Plugins\SocialLogin
- * @author      XE Team (developers) <developers@xpressengine.com>
+ * @author      XE Developers <developers@xpressengine.com>
  * @copyright   2015 Copyright (C) NAVER <http://www.navercorp.com>
- * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1-standalone.html LGPL
+ * @license     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html LGPL-2.1
  * @link        http://www.xpressengine.com
  */
 class NaverProvider extends AbstractProvider implements ProviderInterface
 {
-
     /**
+     * get auth url
+     *
+     * @param string $state state
+     *
+     * @return mixed
      * {@inheritdoc}
      */
     protected function getAuthUrl($state)
@@ -40,7 +48,9 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
     }
 
     /**
+     * get token url
      * {@inheritdoc}
+     * @return string
      */
     protected function getTokenUrl()
     {
@@ -50,12 +60,13 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get the access token response for the given code.
      *
-     * @param  string  $code
+     * @param  string $code code
+     *
      * @return array
      */
     public function getAccessTokenResponse($code)
     {
-        $query               = $this->getTokenFields($code);
+        $query = $this->getTokenFields($code);
         $query['grant_type'] = 'authorization_code';
 
         $response = $this->getHttpClient()->get($this->getTokenUrl(), [
@@ -69,7 +80,8 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
     /**
      * Get the raw user for the given access token.
      *
-     * @param  string  $token
+     * @param  string $token token
+     *
      * @return array
      */
     protected function getUserByToken($token)
@@ -79,20 +91,25 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
             [
                 'headers' => [
                     'Accept' => '*/*',
-                    'Authorization' => 'Bearer '.$token,
+                    'Authorization' => 'Bearer ' . $token,
                 ]
             ]
         );
 
-        $user = (array) simplexml_load_string($response->getBody())->response;
+        $user = (array)simplexml_load_string($response->getBody())->response;
 
         return array_map(function ($field) {
-            return (string) $field;
+            return (string)$field;
         }, $user);
     }
 
     /**
-     * {@inheritdoc}
+     * map user to object
+     *
+     * @param array $user user
+     *                    {@inheritdoc}
+     *
+     * @return mixed
      */
     protected function mapUserToObject(array $user)
     {
@@ -104,5 +121,4 @@ class NaverProvider extends AbstractProvider implements ProviderInterface
             'avatar' => array_get($user, 'profile_image'),
         ]);
     }
-
 }
