@@ -7,9 +7,18 @@
 
 이 플러그인은 XE3에서 Social Login 기능을 제공합니다.
 
+<p align="center"> 
+  <img src="https://raw.githubusercontent.com/xpressengine/plugin-social_login/develop/social_preview.PNG">
+ </p>
+
 Naver, Github, Google, Facebook, Twitter 서비스의 OAuth 인증을 사용하여 사이트에 로그인/가입 할 수 있도록 도와줍니다.
 소셜로그인을 사용하기 위해서는 먼저 각 인증 서비스의 어플리케이션 설정을 해야합니다.
 
+<p align="center"> 
+  <img src="https://raw.githubusercontent.com/xpressengine/plugin-social_login/develop/social_setting.PNG">
+ </p>
+ 
+ 
 ![License](http://img.shields.io/badge/license-GNU%20LGPL-brightgreen.svg)
 
 # Installation
