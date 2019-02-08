@@ -29,10 +29,10 @@ $ php artisan plugin:install social_login
 
 ## Configuration plugin
 * Naver의 네아로(네이버 아이디로 로그인) 서비스는 ![이곳](https://developers.naver.com/apps/#/list) 에서 관리 & 생성 할 수 있습니다.
-* Facebook의 로그인 API는 ![이곳](https://developers.facebook.com/apps/)에서 관리 & 생성 할 수 있습니다.
-* Twitter의 로그인 API는 ![이곳](https://developer.twitter.com/en/apps)에서 관리 & 생성 할 수 있습니다.
-* Github의 로그인 API는 ![이곳](https://github.com/settings/developers)에서 관리 & 생성 할 수 있습니다.
-* Google의 로그인 API는 ![이곳](https://console.developers.google.com/)에서 관리 & 생성 할 수 있습니다.
+* Facebook의 로그인 API는 [이곳](https://developers.facebook.com/apps/)에서 관리 & 생성 할 수 있습니다.
+* Twitter의 로그인 API는 [이곳](https://developer.twitter.com/en/apps)에서 관리 & 생성 할 수 있습니다.
+* Github의 로그인 API는 [이곳](https://github.com/settings/developers)에서 관리 & 생성 할 수 있습니다.
+* Google의 로그인 API는 [이곳](https://console.developers.google.com/)에서 관리 & 생성 할 수 있습니다.
 
 ## License
 이 플러그인은 LGPL라이선스 하에 있습니다. <https://opensource.org/licenses/LGPL-2.1>
