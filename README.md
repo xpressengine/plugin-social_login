@@ -1,8 +1,6 @@
 <p align="center"> 
   <img src="https://raw.githubusercontent.com/xpressengine/plugin-social_login/master/icon.png">
  </p>
- 
-![screen shot](https://raw.githubusercontent.com/xpressengine/plugin-social_login/develop/social_login.PNG)
 
 # XE3 Social Login
 이 어플리케이션은 Xpressengine3(이하 XE3)의 플러그인입니다.
