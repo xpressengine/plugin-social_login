@@ -1,4 +1,4 @@
-# plugin-social_login
+# XE3 Social Login
 이 어플리케이션은 Xpressengine3(이하 XE3)의 플러그인입니다.
 
 이 플러그인은 XE3에서 Social Login 기능을 제공합니다.
