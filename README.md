@@ -1,5 +1,5 @@
 <p align="center"> 
-  ![Social Login Plugin](https://raw.githubusercontent.com/xpressengine/plugin-social_login/master/icon.png)
+  <img src="https://raw.githubusercontent.com/xpressengine/plugin-social_login/master/icon.png">
  </p>
 ![screen shot](https://raw.githubusercontent.com/xpressengine/plugin-social_login/develop/social_login.PNG)
 
