@@ -91,6 +91,7 @@ class ConnectController extends Controller
             auth()->login($user);
         }
 
+        $redirectUrl = '/';
         if ($request->session()->pull('social_login::pop')) {
             $redirectUrl = $request->session()->pull('url.intended') ?: '/';
 
