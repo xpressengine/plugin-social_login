@@ -130,11 +130,11 @@ hr {
     margin: 0 auto;
     padding: 32px 5px 24px;
     color: #2c2e37;
-    font-family: '나눔고딕',NanumGothic,'맑은 고딕','Malgun Gothic','돋움',Dotum,'애플 SD 산돌고딕 Neo','Apple SD Gothic Neo',AppleGothic,Helvetica,sans-serif;
+    /* font-family: '나눔고딕',NanumGothic,'맑은 고딕','Malgun Gothic','돋움',Dotum,'애플 SD 산돌고딕 Neo','Apple SD Gothic Neo',AppleGothic,Helvetica,sans-serif; */
     font-size: 14px;
 }
 
-.user,
+/* .user,
 input,
 textarea,
 select,
@@ -146,7 +146,7 @@ h4,
 h5,
 h6 {
     font-family: "Source Sans Pro","나눔바른고딕",NanumBarunGothic,"맑은 고딕","Malgun Gothic","돋움",Dotum,"애플 SD 산돌고딕 Neo","Apple SD Gothic Neo",AppleGothic,Helvetica,sans-serif;
-}
+} */
 
 .user.v2 {
     max-width: 430px;
@@ -359,16 +359,20 @@ h6 {
 }
 
 .user .auth-sns.v2 ul {
-    max-width: 230px;
+    /* max-width: 230px; */
+    max-width: none;
     margin: 8px auto 16px;
 }
 
 .user .auth-sns.v2 li {
     position: relative;
-    display: block;
+    /* display: block; */
+    display: inline-block;
+    width: auto;
 }
 
 .user .auth-sns.v2 li a {
+    position: relative;
     display: block;
     width: 270px;
     height: 48px;
