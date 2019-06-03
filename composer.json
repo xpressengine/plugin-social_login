@@ -1,6 +1,6 @@
 {
   "name": "xpressengine-plugin/social_login",
-  "description": "social login for xpressengine",
+  "description": "10초안에 내 사이트 회원을 만드는 방법, 소셜로그인 플러그인",
   "keywords": [
     "xpressengine",
     "social",
@@ -15,7 +15,7 @@
     {
       "name": "XE Developers",
       "email": "developers@xpressengine.com",
-      "homepage": "http://xpressengine.io",
+      "homepage": "https://store.xehub.io/plugins/social_login",
       "role": "Developer"
     }
   ],
