@@ -7,7 +7,7 @@
     "login",
     "sns"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "support": {
     "email": "developers@xpressengine.com"
   },
@@ -19,7 +19,7 @@
       "role": "Developer"
     }
   ],
-  "license": "LGPL-2.1-or-later",
+  "license": "LGPL-3.0-or-later",
   "type": "xpressengine-plugin",
   "extra": {
     "xpressengine": {
@@ -35,7 +35,8 @@
     }
   },
   "require": {
-    "laravel/socialite": "~3.0.0"
+    "laravel/socialite": "~3.0.0",
+    "xpressengine/xpressengine": "~3.0.2"
   },
   "autoload": {
     "psr-4": {
