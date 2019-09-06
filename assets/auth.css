@@ -389,13 +389,7 @@ hr {
 }
 
 /* ---- 2019/09/06 회원가입 개편 스타일, 소셜 로그인, 소셜 회원가입 동일하게 스타일 적용 ---- */
-.user .auth-sns-user {
-    max-width: 250px;
-    width: 100%;
-    margin: 0 auto;
-}
-
-.user .auth-sns-user .auth-sns-user__title {
+.user .user__title {
     margin: 0;
     font-size: 24px;
     line-height: 32px;
@@ -405,12 +399,31 @@ hr {
     color: #172b4d;
 }
 
-.user .auth-sns-user .auth-sns-user__text {
+.user .user__text {
     margin: 16px 0 0;
     font-size: 13px;
     line-height: 20px;
     text-align: center;
     color: #6b778c;
+}
+
+.user .auth-user__text {
+    margin: 32px 0 0;
+    font-size: 13px;
+    line-height: 16px;
+    text-align: center;
+    color: #6b778c;
+}
+
+.user .auth-user__text a {
+    margin-left: 4px;
+    color: #345bd9;
+}
+
+.user .auth-sns-user {
+    max-width: 250px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .user .auth-sns-user .auth-sns-user-list {
@@ -527,19 +540,6 @@ hr {
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--email a:hover {
     background-color: #c1c7d0;
-}
-
-.user .auth-user__text {
-    margin: 32px 0 0;
-    font-size: 13px;
-    line-height: 16px;
-    text-align: center;
-    color: #6b778c;
-}
-
-.user .auth-user__text a {
-    margin-left: 4px;
-    color: #345bd9;
 }
 
 /* ---- //회원가입 개편 스타일, 소셜 로그인, 소셜 회원가입 동일하게 스타일 적용 ---- */
