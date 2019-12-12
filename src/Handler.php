@@ -174,8 +174,16 @@ class Handler
             ];
 
             if (!$user) {
+                $email = $userInfo->getEmail();
+
+                $loginId = strtok($email, '@');
+                if ($this->users->users()->where('login_id')->exists() === true) {
+                    $loginId .= 1;
+                }
+
                 $user = $this->users->create([
-                    'email' => $userInfo->getEmail(),
+                    'email' => $email,
+                    'login_id' => $loginId,
                     'display_name' => $this->resolveDisplayName($userInfo->getNickname() ?: $userInfo->getName()),
                     'group_id' => array_filter([$this->cfg->getVal('user.join.joinGroup')]),
                     'account' => $data
