@@ -7,7 +7,7 @@
     "login",
     "sns"
   ],
-  "version": "1.0.2",
+  "version": "1.0.3",
   "support": {
     "email": "developers@xpressengine.com"
   },
@@ -36,7 +36,7 @@
   },
   "require": {
     "laravel/socialite": "~3.0.0",
-    "xpressengine/xpressengine": "~3.0.2"
+    "xpressengine/xpressengine": "~3.0.8"
   },
   "autoload": {
     "psr-4": {
