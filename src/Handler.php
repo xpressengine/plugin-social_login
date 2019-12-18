@@ -26,6 +26,7 @@ use Xpressengine\Database\DatabaseHandler;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsAccountException;
 use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsEmailException;
+use Xpressengine\User\Models\User;
 use Xpressengine\User\UserHandler;
 
 /**
@@ -181,13 +182,20 @@ class Handler
                     $loginId .= 1;
                 }
 
-                $user = $this->users->create([
+                $userData = [
                     'email' => $email,
                     'login_id' => $loginId,
                     'display_name' => $this->resolveDisplayName($userInfo->getNickname() ?: $userInfo->getName()),
-                    'group_id' => array_filter([$this->cfg->getVal('user.join.joinGroup')]),
+                    'group_id' => array_filter([$this->cfg->getVal('user.register.joinGroup')]),
                     'account' => $data
-                ]);
+                ];
+
+                //이메일 인증 후 가입 설정을 사용하고 있을 경우 바로 활성화
+                if ($this->cfg->getVal('user.register.register_process') === User::STATUS_PENDING_EMAIL) {
+                    $userData['status'] = User::STATUS_ACTIVATED;
+                }
+
+                $user = $this->users->create($userData);
             } else {
                 $this->users->createAccount($user, $data);
             }
