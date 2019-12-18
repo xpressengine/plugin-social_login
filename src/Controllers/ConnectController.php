@@ -81,11 +81,17 @@ class ConnectController extends Controller
         }
 
         if (!auth()->check()) {
-            if ($user->getStatus() !== User::STATUS_ACTIVATED) {
-                return redirect()->route('login')->with('alert', [
-                    'type' => 'danger',
-                    'message' => xe_trans('social_login::disabledAccount')
-                ]);
+            $status = $user->getStatus();
+            if ($status !== User::STATUS_ACTIVATED) {
+                if ($status === User::STATUS_PENDING_ADMIN) {
+                    auth()->login($user);
+                    return redirect()->route('auth.pending_admin');
+                } else {
+                    return redirect()->route('login')->with('alert', [
+                        'type' => 'danger',
+                        'message' => xe_trans('social_login::disabledAccount')
+                    ]);
+                }
             }
 
             auth()->login($user);
