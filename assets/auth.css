@@ -33,7 +33,7 @@ legend {
     padding: 0;
 }
 
-.xe-container {
+/* .xe-container {
     padding-right: 4px;
     padding-left: 4px;
     margin-right: auto;
@@ -50,7 +50,7 @@ legend {
 .xe-row {
     margin-right: -4px;
     margin-left: -4px;
-}
+} */
 
 .pull-r {
     float: none;
@@ -63,7 +63,7 @@ hr {
     border-top: 1px solid #e4e4e4;
 }
 
-.xe-col-xs-1,
+/* .xe-col-xs-1,
 .xe-col-sm-1,
 .xe-col-md-1,
 .xe-col-lg-1,
@@ -113,11 +113,11 @@ hr {
 .xe-col-lg-12 {
     padding-right: 4px;
     padding-left: 4px;
-}
+} */
 
 .row-title {
     margin: 5px 0;
-    padding-left: 4px;
+    padding-left: 15px;
     font-size: 14px;
 }
 
