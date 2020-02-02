@@ -21,6 +21,7 @@ use Route;
 use XeLang;
 use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
+use Xpressengine\Plugins\SocialLogin\Providers\KakaoProvider;
 use Xpressengine\User\UserHandler;
 use XeInterception;
 
