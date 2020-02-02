@@ -35,8 +35,9 @@
     }
   },
   "require": {
-    "laravel/socialite": "~3.0.0",
-    "xpressengine/xpressengine": "~3.0.8"
+    "xpressengine/xpressengine": "~3.0.8",
+	"laravel/socialite": "~3.0.0",
+	"socialiteproviders/kakao": "^4.1"
   },
   "autoload": {
     "psr-4": {

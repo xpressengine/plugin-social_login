@@ -121,6 +121,18 @@ class Plugin extends AbstractPlugin
                 );
             });
         });
+		//02.02 추가
+		app()->resolving(Socialite::class, function ($socialite) {
+            $socialite->extend('kakao', function ($app) {
+                $config = $app['config']['services.kakao'];
+                return new KakaoProvider(
+                    $app['request'],
+                    $config['client_id'],
+                    $config['client_secret'],
+                    $config['redirect']
+                );
+            });
+        });
     }
 
     /**
