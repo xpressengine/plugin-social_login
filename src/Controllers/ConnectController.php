@@ -160,9 +160,11 @@ class ConnectController extends Controller
             return redirect()->route('login', ['by' => 'email']);
         }
 
+        $config = app('xe.config')->get('user.register');
+
         XePresenter::setSkinTargetId('social_login');
 
-        return XePresenter::make('login', compact('providers'));
+        return XePresenter::make('login', compact('providers', 'config'));
     }
 
     /**
