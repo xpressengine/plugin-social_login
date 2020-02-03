@@ -28,8 +28,6 @@
                         {{xe_trans('xe::keepLoginDescription')}}
                     </p>
 
-                    <a href="{{ route('auth.reset') }}" class="user-login-link user-login-link--right">{{ xe_trans('xe::forgotPassword') }}</a>
-
                     {{-- recaptcha--}}
                     @if ($config['useCaptcha'] === true)
                         {!! uio('captcha') !!}
@@ -38,9 +36,17 @@
                     <button type="submit" class="xu-button xu-button--primary xu-button--block xu-button--large user-login__button">
                         <span class="xu-button__text">{{ xe_trans('xe::login') }}</span>
                     </button>
+
+                    <div class="auth-user__text-box">
+                        <p class="auth-user__text">아직 회원이 아닌신가요? <a href="{{ route('auth.register') }}">{{ xe_trans('xe::doSignUp') }}</a></p>
+                        <p class="auth-user__text">비밀번호를 잊으셨나요? <a href="{{ route('auth.reset') }}">{{ xe_trans('xe::forgotPassword') }}</a></p>
+                    </div>
+
                 </div>
             </fieldset>
         </form>
+
+        <p class="user-text__extra">or</p>
 
         <ul class="auth-sns-user-list">
             @foreach($providers as $provider => $info)
@@ -51,7 +57,7 @@
             </li>
             @endforeach
         </ul>
-        <p class="auth-user__text"><a href="{{ route('auth.register') }}">{{ xe_trans('xe::doSignUp') }}</a></p>
+
     </div>
 </div>
 
