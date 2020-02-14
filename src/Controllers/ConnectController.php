@@ -156,9 +156,6 @@ class ConnectController extends Controller
         }
 
         $providers = $this->getEnabledProviders();
-        if (count($providers) < 1) {
-            return redirect()->route('login', ['by' => 'email']);
-        }
 
         $config = app('xe.config')->get('user.register');
 

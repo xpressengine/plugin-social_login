@@ -38,15 +38,17 @@
                     </button>
 
                     <div class="auth-user__text-box">
-                        <p class="auth-user__text">아직 회원이 아닌신가요? <a href="{{ route('auth.register') }}">{{ xe_trans('xe::doSignUp') }}</a></p>
-                        <p class="auth-user__text">비밀번호를 잊으셨나요? <a href="{{ route('auth.reset') }}">{{ xe_trans('xe::forgotPassword') }}</a></p>
+                        <p class="auth-user__text">{{ xe_trans('xe::signUpSite') }} <a href="{{ route('auth.register') }}">{{ xe_trans('xe::doSignUp') }}</a></p>
+                        <p class="auth-user__text">{{ xe_trans('xe::forgotPassword') }} <a href="{{ route('auth.reset') }}">{{ xe_trans('xe::forgotPassword') }}</a></p>
                     </div>
 
                 </div>
             </fieldset>
         </form>
 
-        <p class="user-text__extra">or</p>
+        @if (count($providers) > 0)
+            <p class="user-text__extra">or</p>
+        @endif
 
         <ul class="auth-sns-user-list">
             @foreach($providers as $provider => $info)
@@ -57,7 +59,6 @@
             </li>
             @endforeach
         </ul>
-
     </div>
 </div>
 
