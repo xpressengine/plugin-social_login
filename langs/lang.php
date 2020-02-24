@@ -29,6 +29,10 @@ return [
         'ko' => '페이스북',
         'en' => 'Facebook',
     ],
+	'kakao' => [
+        'ko' => '카카오',
+        'en' => 'Kakao',
+    ],
     'naver' => [
         'ko' => '네이버',
         'en' => 'Naver',

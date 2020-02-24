@@ -6,6 +6,11 @@ return [
         'client_id' => env('SERVICE_FACEBOOK_CLIENTID', ''),
         'client_secret' => env('SERVICE_FACEBOOK_CLIENTSECRET', ''),
     ],
+	'kakao' => [ //02.01수정
+        'title' => 'social_login::kakao',
+        'client_id' => env('SERVICE_KAKAO_CLIENTID', ''),
+        'client_secret' => env('SERVICE_KAKAKO_CLIENTSECRET', ''),
+    ],
     'naver' => [
         'title' => 'social_login::naver',
         'client_id' => env('SERVICE_NAVER_CLIENTID', ''),

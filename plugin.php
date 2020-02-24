@@ -21,6 +21,7 @@ use Route;
 use XeLang;
 use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
+use Xpressengine\Plugins\SocialLogin\Providers\KakaoProvider;
 use Xpressengine\User\UserHandler;
 use XeInterception;
 
@@ -113,6 +114,18 @@ class Plugin extends AbstractPlugin
             $socialite->extend('naver', function ($app) {
                 $config = $app['config']['services.naver'];
                 return new NaverProvider(
+                    $app['request'],
+                    $config['client_id'],
+                    $config['client_secret'],
+                    $config['redirect']
+                );
+            });
+        });
+		//02.02 추가
+		app()->resolving(Socialite::class, function ($socialite) {
+            $socialite->extend('kakao', function ($app) {
+                $config = $app['config']['services.kakao'];
+                return new KakaoProvider(
                     $app['request'],
                     $config['client_id'],
                     $config['client_secret'],

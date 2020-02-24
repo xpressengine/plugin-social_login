@@ -275,6 +275,10 @@ hr {
     background-color: #55acee;
 }
 
+.user .auth-sns li.sns-kakao a {
+    background-color: rgb(250,225,0);
+}
+
 .user .auth-sns li.sns-naver a {
     background-color: #23b300;
 }
@@ -309,6 +313,9 @@ hr {
     background-color: #1c8d00;
 }
 
+.user .auth-sns li.sns-kakao a:hover {
+    background-color: rgb(250,225,0);
+}
 .user .auth-sns li.sns-google a:hover {
     background-color: #3a76d6;
 }
@@ -493,8 +500,8 @@ hr {
     color: #000;
 }
 
-.user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--kakaotalk a {
-    background-color: #f9df00;
+.user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--kakao a {
+    background-color: rgb(250,225,0);
     color: #000;
 }
 
@@ -505,6 +512,11 @@ hr {
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--naver a {
     background-color: #00c73c;
+    color: #fff;
+}
+
+.user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--kakao a {
+    background-color: rgb(250,225,0);
     color: #fff;
 }
 
@@ -528,12 +540,16 @@ hr {
     color: #000;
 }
 
-.user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--kakaotalk a:hover {
-    background-color: #f9cb00;
+.user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--kakao a:hover {
+    background-color: rgb(250,225,0);
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--facebook a:hover {
     background-color: #354f84;
+}
+
+.user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--kakao a:hover {
+    background-color: rgb(250,225,0);
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--naver a:hover {

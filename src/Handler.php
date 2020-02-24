@@ -115,6 +115,7 @@ class Handler
      *
      * @return UserContract
      */
+	
     public function getUser(Provider $provider, $token = null, $tokenSecret = null, $stateless = false)
     {
         if ($stateless) {
