@@ -38,6 +38,8 @@
     <link
         href="../../../plugins/together/Components/Theme/assets/../../../assets/libs/slick/slick.css?1564023750"
         type="text/css" rel="stylesheet" media="all">
+
+    <link href="../../../assets/core/xe-ui/css/xe-ui-without-base.css?1575857921" type="text/css" rel="stylesheet" media="all">
     <!-- JS at head.prepend -->
     <script>
         var xeBaseURL = 'http://xe.hyeok.udd.kr'; // @DEPRECATED
@@ -140,7 +142,47 @@
                     <div class="user __xe_userLogin">
                         <div class="auth-sns-user">
                             <h2 class="user__title">계정에 로그인</h2>
-                            <!-- <p class="user__text">가입안내: 회원가입시 정보입력 단계 상단에 표시 될 내용입니다. (여러줄 입력 가능)</p> -->
+
+                            <p class="user__text">가입안내: 회원가입시 정보입력 단계 상단에 표시 될 내용입니다. (여러줄 입력 가능)</p>
+
+                            <form action="http://xe.hyeok.udd.kr/auth/login" method="post">
+                                <input type="hidden" name="_token" value="DKhf6em1WZ2Lic4yOufiUtLpK9WvXWqpQAphXaIt">
+                                <fieldset>
+                                    <legend>계정에 로그인</legend>
+                                    <div class="user-login">
+                                        <div class="xu-form-group xu-form-group--large">
+                                            <input type="text" name="email" class="xu-form-group__control" placeholder="아이디 또는 이메일" value="">
+                                        </div>
+                                        <div class="xu-form-group xu-form-group--large">
+                                            <input type="password" name="password" class="xu-form-group__control" id="password" placeholder="비밀번호">
+                                        </div>
+                                        <label class="xu-label-checkradio xu-label-checkradio--small">
+                                            <input type="checkbox" class="__xe_keep_login">
+                                            <span class="xu-label-checkradio__helper"></span>
+                                            <span class="xu-label-checkradio__text">로그인 유지하기</span>
+                                        </label>
+                                        <!--[D] 체크 시 하단메시지 노출-->
+                                        <p class="auth-noti" id="__xe_infoRemember" style="display: none;">
+                                            브라우저를 닫더라도 로그인이 계속 유지될 수 있습니다. 로그인 유지 기능을 사용할 경우 다음 접속부터는 로그인할 필요가 없습니다. 단, 게임방, 학교 등 공공장소에서 이용 시 개인정보가 유출될 수 있으니 꼭 로그아웃을 해주세요.
+                                        </p>
+
+
+
+                                        <button type="submit" class="xu-button xu-button--primary xu-button--block xu-button--large user-login__button">
+                                            <span class="xu-button__text">로그인</span>
+                                        </button>
+
+                                        <div class="auth-user__text-box">
+                                            <p class="auth-user__text">아직 회원이 아닌신가요? <a href="http://xe.hyeok.udd.kr/auth/register">회원 가입하기</a></p>
+                                            <p class="auth-user__text">비밀번호를 잊으셨나요? <a href="http://xe.hyeok.udd.kr/auth/reset">비밀번호를 잊었습니까?</a></p>
+                                        </div>
+
+                                    </div>
+                                </fieldset>
+                            </form>
+
+                            <p class="user-text__extra">or</p>
+
                             <ul class="auth-sns-user-list">
                                 <li class="auth-sns-user__item--facebook">
                                     <a href="http://xe.hyeok.udd.kr/plugin/social_login/auth/facebook">페이스북으로 로그인</a>
@@ -160,11 +202,8 @@
    	  	                        <li class="auth-sns-user__item--kakaotalk">
                                     <a href="http://xe.hyeok.udd.kr/plugin/social_login/auth/kakaotalk">카카오톡 계정으로 로그인</a>
                                 </li>
-                                <li class="auth-sns-user__item--email">
-                                    <a href="http://xe.hyeok.udd.kr/auth/login?by=email">이메일로 로그인</a>
-                                </li>
                             </ul>
-                            <p class="auth-user__text">아직 회원이 아니신가요? <a href="http://xe.hyeok.udd.kr/auth/register">회원가입</a></p>
+                            <!-- <p class="auth-user__text">아직 회원이 아니신가요? <a href="http://xe.hyeok.udd.kr/auth/register">회원가입</a></p> -->
                         </div>
                     </div>
                     <!--//소셜로그인-->

@@ -33,7 +33,7 @@ legend {
     padding: 0;
 }
 
-.xe-container {
+/* .xe-container {
     padding-right: 4px;
     padding-left: 4px;
     margin-right: auto;
@@ -50,7 +50,7 @@ legend {
 .xe-row {
     margin-right: -4px;
     margin-left: -4px;
-}
+} */
 
 .pull-r {
     float: none;
@@ -63,7 +63,7 @@ hr {
     border-top: 1px solid #e4e4e4;
 }
 
-.xe-col-xs-1,
+/* .xe-col-xs-1,
 .xe-col-sm-1,
 .xe-col-md-1,
 .xe-col-lg-1,
@@ -113,11 +113,11 @@ hr {
 .xe-col-lg-12 {
     padding-right: 4px;
     padding-left: 4px;
-}
+} */
 
 .row-title {
     margin: 5px 0;
-    padding-left: 4px;
+    padding-left: 15px;
     font-size: 14px;
 }
 
@@ -126,7 +126,8 @@ hr {
 }
 
 .user {
-    max-width: 330px;
+    /* max-width: 330px; */
+    max-width: 343px;
     margin: 0 auto;
     padding: 32px 5px 24px;
     color: #2c2e37;
@@ -414,12 +415,25 @@ hr {
     color: #6b778c;
 }
 
+.user .auth-user__text-box {
+  margin-top: 32px;
+}
+
+.user .auth-user__text-box .auth-user__text {
+  margin: 0;
+}
+
 .user .auth-user__text {
     margin: 32px 0 0;
     font-size: 13px;
     line-height: 16px;
+    font-weight: 600;
     text-align: center;
     color: #6b778c;
+}
+
+.user .auth-user__text + .auth-user__text {
+  margin: 12px 0 0;
 }
 
 .user .auth-user__text a {
@@ -428,13 +442,13 @@ hr {
 }
 
 .user .auth-sns-user {
-    max-width: 250px;
+    /* max-width: 250px; */
     width: 100%;
     margin: 0 auto;
 }
 
 .user .auth-sns-user .auth-sns-user-list {
-    margin: 24px 0 0;
+    margin: 16px 0 0;
     padding: 0;
     list-style: none;
 }
@@ -512,12 +526,12 @@ hr {
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--google a {
-    background-color: #ea5043;
+    background-color: #5286ec;
     color: #fff;
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--github a {
-    background-color: #8993a4;
+    background-color: #353a3f;
     color: #fff;
 }
 
@@ -547,11 +561,11 @@ hr {
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--google a:hover {
-    background-color: #ca4d42;
+    background-color: #3E6ECC;
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--github a:hover {
-    background-color: #6b778c;
+    background-color: #1B1E22;
 }
 
 .user .auth-sns-user .auth-sns-user-list .auth-sns-user__item--email a:hover {
@@ -606,4 +620,45 @@ hr {
 .info em.info-title {
     display: inline-block;
     margin-bottom: 8px;
+}
+
+/* -------- 소셜 로그인 로그인 영역 추가 스타일 ------- */
+
+.user .user-login {
+  margin-top: 24px;
+}
+
+.user .user-login .xu-form-group__input-box {
+  width: 100%;
+}
+
+.user .user-login .xu-label-checkradio {
+  margin-top: 16px;
+}
+
+.user .user-login .xu-form-group {
+  margin-bottom: 0;
+}
+
+.user .user-login .xu-form-group + .xu-form-group {
+  margin-top: 4px;
+}
+
+.user .user-login .user-login-link {
+  font-weight: 600;
+  color: #345bd9;
+}
+
+.user .user-login .user-login__button {
+  clear: both;
+  margin-top: 13px;
+}
+
+.user .user-text__extra {
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.23;
+  font-weight: 600;
+  text-align: center;
+  color: #6b778c;
 }
