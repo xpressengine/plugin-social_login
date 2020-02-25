@@ -56,6 +56,23 @@ class Plugin extends AbstractPlugin
     public function update()
     {
         $this->importLang();
+
+        if ($this->checkAllProviderImported() === false) {
+            $configProviders = app('xe.config')->getVal('social_login.providers', []);
+            $optionProviders = require __DIR__ . '/option.php';
+
+            foreach ($optionProviders as $providerName => $providerConfig) {
+                if (array_key_exists($providerName, $configProviders) === false) {
+                    $providerConfig['activate'] = !!$providerConfig['client_id'];
+
+                    $configProviders = array_merge($configProviders, [$providerName => $providerConfig]);
+                }
+            }
+
+            $socialLoginConfig = app('xe.config')->get('social_login');
+            $socialLoginConfig->set('providers', $configProviders);
+            app('xe.config')->modify($socialLoginConfig);
+        }
     }
 
     /**
@@ -133,6 +150,29 @@ class Plugin extends AbstractPlugin
                 );
             });
         });
+    }
+
+    public function checkUpdated()
+    {
+        if ($this->checkAllProviderImported() === false) {
+            return false;
+        }
+
+        return parent::checkUpdated();
+    }
+
+    private function checkAllProviderImported()
+    {
+        $configProviders = app('xe.config')->getVal('social_login.providers', []);
+        $optionProviders = require __DIR__ . '/option.php';
+
+        foreach ($optionProviders as $providerName => $value) {
+            if (array_key_exists($providerName, $configProviders) === false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
