@@ -28,6 +28,8 @@ use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsAccountException;
 use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsEmailException;
 use Xpressengine\User\Models\User;
 use Xpressengine\User\UserHandler;
+use Xpressengine\User\UserInterface;
+use Xpressengine\User\UserRegisterHandler;
 
 /**
  * Handler
@@ -98,39 +100,159 @@ class Handler
      *
      * @return Authenticatable|\Xpressengine\User\UserInterface
      * @throws \Exception
+     *
+     * @deprecated since 1.0.5 instead use registerUser or connectAccount
      */
     public function execute($provider, $stateless = false)
     {
-        return $this->connect(
-            $this->getUser($this->socialite->driver($provider), null, null, $stateless),
-            $provider
-        );
+        return $this->connect($this->getUser($provider, null, null, $stateless), $provider);
     }
 
     /**
-     * @param Provider    $provider    provider
+     * @param string      $provider    provider
      * @param string|null $token       token
      * @param string|null $tokenSecret token secret
      * @param bool        $stateless   stateless
      *
      * @return UserContract
      */
-	
-    public function getUser(Provider $provider, $token = null, $tokenSecret = null, $stateless = false)
+    public function getUser($provider, $token = null, $tokenSecret = null, $stateless = false)
     {
+        $providerInstance = $this->socialite->driver($provider);
+
         if ($stateless) {
-            $provider->stateless();
+            $providerInstance->stateless();
         }
 
         if ($token !== null) {
-            if ($provider instanceof \Laravel\Socialite\One\AbstractProvider) {
-                return $provider->userFromTokenAndSecret($token, $tokenSecret);
-            } elseif ($provider instanceof \Laravel\Socialite\Two\AbstractProvider) {
-                return $provider->userFromToken($token);
+            if ($providerInstance instanceof \Laravel\Socialite\One\AbstractProvider) {
+                return $providerInstance->userFromTokenAndSecret($token, $tokenSecret);
+            } elseif ($providerInstance instanceof \Laravel\Socialite\Two\AbstractProvider) {
+                return $providerInstance->userFromToken($token);
             }
         }
 
-        return $provider->user();
+        return $providerInstance->user();
+    }
+
+    public function getRegisteredUserAccount(UserContract $userContract, $providerName)
+    {
+        return $this->findAccount($userContract->getId(), $providerName);
+    }
+
+    /**
+     * Register user
+     *
+     * @param array $userData Register user data
+     *
+     * @return UserInterface
+     */
+    public function registerUser($userData)
+    {
+        $email = array_get($userData, 'email', null);
+        $accountId = array_get($userData, 'account_id', null);
+        $providerName = array_get($userData, 'provider_name', null);
+
+        if ($this->users->users()->where('email', $email)->exists() === true) {
+            throw new ExistsEmailException;
+        }
+
+        if ($this->findAccount($accountId, $providerName) !== null) {
+            throw new ExistsAccountException;
+        }
+
+        $userAccountData = [
+            'email' => array_get($userData, 'email', null),
+            'account_id' => $accountId,
+            'provider' => $providerName,
+            'token' => array_get($userData, 'token', null),
+            'token_secret' => array_get($userData, 'token_secret', null) ?? ''
+        ];
+
+        $loginId = array_get($userData, 'login_id', strtok($email, '@'));
+        $userData['login_id'] = $this->resolveLoginId($loginId);
+        $userData['display_name'] = array_get($userData, 'display_name', null);
+        $userData['group_id'] = array_filter([$this->cfg->getVal('user.register.joinGroup')]);
+        $userData['account'] = $userAccountData;
+
+        if ($this->cfg->getVal('user.register.register_process') === User::STATUS_PENDING_EMAIL) {
+            $userData['status'] = User::STATUS_ACTIVATED;
+            if ($email !== array_get($userData, 'contract_email', null)) {
+                $userData['status'] = User::STATUS_PENDING_EMAIL;
+            }
+        }
+
+        return $this->users->create($userData);
+    }
+
+    /**
+     * Check need register form
+     *
+     * @param UserContract $userContract UserContract
+     *
+     * @return bool
+     */
+    public function checkNeedRegisterForm(UserContract $userContract)
+    {
+        if ($userContract->getEmail() === null) {
+            return true;
+        }
+
+        if ($this->users->users()->where('email', $userContract->getEmail())->exists() === true) {
+            return true;
+        }
+
+        $displayName = $userContract->getNickname() ?: $userContract->getName();
+        if ($displayName === null) {
+            return true;
+        }
+
+        if (app('xe.config')->getVal('user.register.display_name_unique') === true) {
+            if ($this->users->users()->where('display_name', $displayName)->exists() === true) {
+                return true;
+            }
+        }
+
+        $dynamicFieldHandler = app('xe.dynamicField');
+        $fieldTypes = $dynamicFieldHandler->gets('user');
+        if (count($fieldTypes) > 0) {
+            return true;
+        }
+
+        $termsHandler = app('xe.terms');
+        $terms = $termsHandler->fetchEnabled();
+        if (app('xe.config')->getVal('user.register.term_agree_type') !== UserRegisterHandler::TERM_AGREE_NOT &&
+            $terms->count() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Connect account to user
+     *
+     * @param UserInterface $user         User
+     * @param UserContract  $userContract UserContract
+     * @param string        $providerName Provider name
+     *
+     * @return void
+     */
+    public function connectAccount(UserInterface $user, UserContract $userContract, $providerName)
+    {
+        if ($this->findAccount($userContract->getId(), $providerName) !== null) {
+            throw new ExistsAccountException;
+        }
+
+        $accountData = [
+            'email' => $userContract->getEmail(),
+            'account_id' => $userContract->getId(),
+            'provider' => $providerName,
+            'token' => $userContract->token,
+            'token_secret' => $userContract->tokenSecret ?? ''
+        ];
+
+        $this->users->createAccount($user, $accountData);
     }
 
     /**
@@ -139,12 +261,14 @@ class Handler
      *
      * @return Authenticatable|\Xpressengine\User\UserInterface
      * @throws \Exception
+     *
+     * @deprecated since 1.0.5 instead use registerUser or connectAccount
      */
     protected function connect(UserContract $userInfo, $provider)
     {
         $user = $this->currentUser();
 
-        if ($account = $this->findAccount($userInfo, $provider)) {
+        if ($account = $this->findAccount($userInfo->getId(), $provider)) {
             if (!$user) {
                 return $account->user;
             }
@@ -231,22 +355,50 @@ class Handler
     /**
      * find account
      *
-     * @param UserContract $userInfo user info
-     * @param string       $provider provider
+     * @param string $userContractId user info
+     * @param string $providerName   providerName
      *
      * @return \Xpressengine\User\Models\UserAccount|null
      */
-    protected function findAccount(UserContract $userInfo, $provider)
+    protected function findAccount($userContractId, $providerName)
     {
+        if ($userContractId instanceof UserContract) {
+            $userContractId = $userContractId->getId();
+        }
+
         return $this->users->accounts()
-            ->where(['provider' => $provider, 'account_id' => $userInfo->getId()])
+            ->where(['provider' => $providerName, 'account_id' => $userContractId])
             ->first();
+    }
+
+    /**
+     * Resolve loginId
+     *
+     * @param string $loginId loginId
+     *
+     * @return string
+     */
+    private function resolveLoginId($loginId)
+    {
+        $i = 1;
+
+        $resolveLoginId = $loginId;
+        while (true) {
+            if ($this->users->users()->where('login_id', $resolveLoginId)->exists() === false) {
+                break;
+            }
+            $resolveLoginId .= $i;
+        }
+
+        return $resolveLoginId;
     }
 
     /**
      * @param string $displayName display name
      *
      * @return string
+     *
+     * @deprecated since 1.0.5
      */
     private function resolveDisplayName($displayName)
     {

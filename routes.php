@@ -24,6 +24,7 @@ Route::settings('social_login', function () {
             'permission' => 'user.setting'
         ]);
     });
+    Route::post('update_config', ['as' => 'social_login::settings.config.update', 'uses' => 'SettingsController@updateConfig']);
     Route::put('skin', ['as' => 'social_login::settings.skin.update', 'uses' => 'SettingsController@updateSkin']);
 });
 
@@ -34,6 +35,7 @@ Route::fixed('social_login', function () {
 
     Route::group(['prefix' => 'login'], function () {
         Route::get('/', ['as' => 'social_login::login', 'uses' => 'ConnectController@login']);
+        Route::post('/register', ['as' => 'social_login::register', 'uses' => 'ConnectController@postRegister']);
         Route::get('{provider}', ['as' => 'social_login::connect', 'uses' => 'ConnectController@connect']);
     });
     // register each provider's connect page

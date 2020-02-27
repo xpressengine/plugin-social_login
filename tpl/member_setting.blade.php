@@ -12,14 +12,14 @@
                     <!--[D] 계정 연결되어 있는 경우 on 클래스 추가-->
                     @if(isset($accounts[$provider]))
                         <div class="setting-left on">
-                            <i class="xi-{{ $provider }}"></i>{{ xe_trans('social_login::connectedTo', ['provider' => xe_trans($info['title'])]) }}
+                            {{ xe_trans('social_login::connectedTo', ['provider' => xe_trans($info['title'])]) }}
                         </div>
                         <div class="setting-right">
                             <button data-link="{{ route("social_login::disconnect", ['provider' => $provider]) }}" class="__xe_socialDisconnect xe-btn xe-btn-text">{{ xe_trans('social_login::disconnect') }}</button>
                         </div>
                     @else
                         <div class="setting-left">
-                            <i class="xi-{{ $provider }}"></i>{{ xe_trans('social_login::connectableTo', ['provider' => xe_trans($info['title'])]) }}
+                            {{ xe_trans('social_login::connectableTo', ['provider' => xe_trans($info['title'])]) }}
                         </div>
                         <div class="setting-right">
                             <button data-link="{{ route("social_login::auth", ['provider' => $provider, '_p' => 1]) }}" class="__xe_socialConnect xe-btn xe-btn-text">{{ xe_trans('social_login::connect') }}</button>

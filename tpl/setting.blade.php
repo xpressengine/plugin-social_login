@@ -1,8 +1,22 @@
+@php
+    use Xpressengine\Plugins\SocialLogin\Plugin;
+@endphp
+
 <div class="row">
     <div class="col-sm-12">
         <div class="panel">
             <div class="panel-body">
-                <form id="form-skin">
+                <form method="post" action="{{ route('social_login::settings.config.update') }}">
+                    {!! csrf_field() !!}
+
+                    <div class="form-group">
+                        <label>가입방식 설정</label>
+                        <select name="registerType" class="form-control">
+                            <option value="{{ Plugin::REGISTER_TYPE_SIMPLE }}" @if (app('xe.config')->getVal('social_login.registerType', Plugin::REGISTER_TYPE_SIMPLE) === Plugin::REGISTER_TYPE_SIMPLE) selected @endif >간단가입: 필수 정보 확인 후 가입</option>
+                            <option value="{{ Plugin::REGISTER_TYPE_STEP }}" @if (app('xe.config')->getVal('social_login.registerType', Plugin::REGISTER_TYPE_SIMPLE) === Plugin::REGISTER_TYPE_STEP) selected @endif >회원가입: 회원가입 절차대로 가입</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label>스킨</label>
                         <select name="skin" class="form-control">
@@ -12,7 +26,8 @@
                             @endforeach
                         </select>
                     </div>
-                    <p class="text-right btns" style="display:none;">
+
+                    <p class="text-right btns">
                         <button type="submit" class="btn btn-primary">{{xe_trans('xe::save')}}</button>
                     </p>
                 </form>
@@ -27,36 +42,7 @@
                     @endforeach
                     </div>
                 </div>
-
             </div>
         </div>
-
-
     </div>
 </div>
-
-{!! app('xe.frontend')->html('social_login.update')->content("
-<script>
-window.jQuery(function($) {
-    window.updateSocialLogin = function (data) {
-        window.XE.toast(data.type, data.message);
-        window.XE.page(data.url, '.__xe_social_login.'+data.provider);
-    };
-    $('select', '#form-skin').change(function () {
-        $('.btns', '#form-skin').slideDown();
-    });
-    $('#form-skin').submit(function (e) {
-        e.preventDefault();
-        XE.ajax({
-            url: '".route('social_login::settings.skin.update')."',
-            type: 'put',
-            data: $(this).serialize(),
-            success: function () {
-                $('.btns', '#form-skin').slideUp();
-                XE.toast('success', '".xe_trans('xe::saved')."');
-            }
-        });
-    });
-});
-</script>
-")->load() !!}

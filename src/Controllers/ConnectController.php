@@ -16,13 +16,23 @@
 
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
+use Illuminate\Support\Facades\Validator;
+use XeDB;
 use App\Http\Controllers\Controller;
+use XeFrontend;
 use XePresenter;
 use Xpressengine\Http\Request;
 use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsAccountException;
 use Xpressengine\Plugins\SocialLogin\Exceptions\ExistsEmailException;
+use Xpressengine\Plugins\SocialLogin\Handler;
+use Xpressengine\Plugins\SocialLogin\Plugin;
 use Xpressengine\Support\Exceptions\HttpXpressengineException;
 use Xpressengine\User\Models\User;
+use Xpressengine\User\Parts\AgreementPart;
+use Xpressengine\User\Parts\DefaultPart;
+use Xpressengine\User\Parts\RegisterFormPart;
+use Xpressengine\User\UserHandler;
+use Xpressengine\User\UserRegisterHandler;
 
 /**
  * ConnectController
@@ -36,13 +46,27 @@ use Xpressengine\User\Models\User;
  */
 class ConnectController extends Controller
 {
+    /** @var Handler $socialLoginHandler */
+    protected $socialLoginHandler;
+
+    /** @var UserHandler $userHandler */
+    protected $userHandler;
+
     /**
      * ConnectController constructor.
+     *
+     * @param Handler     $socialLoginHandler social login handler
+     * @param UserHandler $userHandler        user handler
      */
-    public function __construct()
+    public function __construct(Handler $socialLoginHandler, UserHandler $userHandler)
     {
+        $this->socialLoginHandler = $socialLoginHandler;
+        $this->userHandler = $userHandler;
+
         $this->middleware('guest', ['except' => ['auth', 'connect', 'disconnect']]);
         $this->middleware('auth', ['only' => ['disconnect']]);
+
+        XePresenter::setSkinTargetId('social_login');
     }
 
     /**
@@ -55,46 +79,125 @@ class ConnectController extends Controller
      */
     public function auth(Request $request, $provider)
     {
+        if (auth()->check() === false && app('xe.config')->getVal('user.register.joinable') === false) {
+            return redirect('/')->with(
+                ['alert' => ['type' => 'danger', 'message' => xe_trans('xe::joinNotAllowed')]]
+            );
+        }
+
         if ($request->get('_p')) {
             $request->session()->put('social_login::pop', true);
         }
 
-        return app('xe.social_login')->authorize($provider);
+        return $this->socialLoginHandler->authorize($provider);
+    }
+
+    private function loginUser(Request $request, $user)
+    {
+        switch ($user->getStatus()) {
+            case User::STATUS_DENIED:
+                return redirect()->route('login')->with('alert', [
+                    'type' => 'danger',
+                    'message' => xe_trans('social_login::disabledAccount')
+                ]);
+
+            case User::STATUS_PENDING_ADMIN:
+                auth()->login($user);
+                return redirect()->route('auth.pending_admin');
+                break;
+
+            case User::STATUS_PENDING_EMAIL:
+                auth()->login($user);
+                return redirect()->route('auth.pending_email');
+                break;
+        }
+
+        auth()->login($user);
+        $redirectUrl = '/';
+        if ($request->session()->pull('social_login::pop')) {
+            $redirectUrl = $request->session()->pull('url.intended') ?: '/';
+        }
+
+        return redirect()->intended($redirectUrl);
     }
 
     /**
      * connect
      *
-     * @param Request $request  request
-     * @param string  $provider provider
+     * @param Request $request      request
+     * @param string  $providerName provider name
      *
      * @return \Illuminate\Http\RedirectResponse|string
+     * @throws \Throwable
      */
-    public function connect(Request $request, $provider)
+    public function connect(Request $request, $providerName)
     {
         try {
-            $user = app('xe.social_login')->execute($provider);
-        } catch (ExistsAccountException $e) {
-            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredAccount'), 409, $e);
-        } catch (ExistsEmailException $e) {
-            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredEmail'), 409, $e);
+            $userContract = $this->socialLoginHandler->getUser(
+                $providerName,
+                $request->get('token', null),
+                $request->get('token_secret', null),
+                true
+            );
+        } catch (\Throwable $e) {
+            return redirect()->route('social_login::login');
         }
 
-        if (!auth()->check()) {
-            $status = $user->getStatus();
-            if ($status !== User::STATUS_ACTIVATED) {
-                if ($status === User::STATUS_PENDING_ADMIN) {
-                    auth()->login($user);
-                    return redirect()->route('auth.pending_admin');
-                } else {
-                    return redirect()->route('login')->with('alert', [
-                        'type' => 'danger',
-                        'message' => xe_trans('social_login::disabledAccount')
-                    ]);
-                }
+        //로그인 시도
+        if (auth()->check() === false) {
+            if (app('xe.config')->getVal('user.register.joinable') === false) {
+                return redirect()->back()->with(
+                    ['alert' => ['type' => 'danger', 'message' => xe_trans('xe::joinNotAllowed')]]
+                );
             }
 
-            auth()->login($user);
+            $userAccount = $this->socialLoginHandler->getRegisteredUserAccount($userContract, $providerName);
+            if ($userAccount !== null) {
+                $user = $userAccount->user;
+
+                return $this->loginUser($request, $user);
+            }
+
+            //가입된 계정이 없을 경우 회원가입
+            if (app('xe.config')->getVal('social_login.registerType', Plugin::REGISTER_TYPE_SIMPLE) === Plugin::REGISTER_TYPE_SIMPLE &&
+                $this->socialLoginHandler->checkNeedRegisterForm($userContract) === false) {
+
+                $userData = [
+                    'email' => $userContract->getEmail(),
+                    'contract_email' => $userContract->getEmail(),
+                    'display_name' => $userContract->getNickname() ?: $userContract->getName(),
+                    'account_id' => $userContract->getId(),
+                    'provider_name' => $providerName,
+                    'token' => $userContract->token,
+                    'token_secret' => $userContract->tokenSecret ?? ''
+                ];
+
+                XeDB::beginTransaction();
+                try {
+                    $user = $this->socialLoginHandler->registerUser($userData);
+                } catch (ExistsAccountException $e) {
+                    XeDB::rollback();
+                    $this->throwHttpException(xe_trans('social_login::alreadyRegisteredAccount'), 409, $e);
+                } catch (ExistsEmailException $e) {
+                    XeDB::rollback();
+                    $this->throwHttpException(xe_trans('social_login::alreadyRegisteredEmail'), 409, $e);
+                } catch (\Throwable $e) {
+                    XeDB::rollback();
+                    throw $e;
+                }
+                XeDB::commit();
+
+                return $this->loginUser($request, $user);
+            }
+
+            return $this->getRegisterForm($request, $userContract, $providerName);
+        }
+
+        //소셜 로그인 연결
+        try {
+            $this->socialLoginHandler->connectAccount($request->user(), $userContract, $providerName);
+        } catch (ExistsAccountException $e) {
+            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredAccount'), 409, $e);
         }
 
         $redirectUrl = '/';
@@ -118,6 +221,121 @@ class ConnectController extends Controller
         return redirect()->intended($redirectUrl);
     }
 
+    protected function getRegisterParts(Request $request)
+    {
+        $registerConfig = app('xe.config')->get('user.register');
+
+        $parts = UserHandler::getRegisterParts();
+        $activated = array_keys(array_intersect_key(array_flip($registerConfig->get('forms', [])), $parts));
+
+        $parts = collect($parts)->filter(function ($part, $key) use ($activated) {
+            return in_array($key, $activated) || $part::isImplicit();
+        })->sortBy(function ($part, $key) use ($activated) {
+            return array_search($key, $activated);
+        })->map(function ($part) use ($request) {
+            return new $part($request);
+        });
+
+        return $parts;
+    }
+
+    protected function getRegisterForm($request, $userContract, $providerName)
+    {
+        $registerConfig = app('xe.config')->get('user.register');
+
+        $parts = $this->getRegisterParts($request);
+
+        $defaultPartRule = [];
+        if (isset($parts[DefaultPart::ID]) === true) {
+            $defaultPartRule = $parts[DefaultPart::ID]->rules();
+            if (isset($defaultPartRule['password']) === true) {
+                unset($defaultPartRule['password']);
+            }
+
+            unset($parts[DefaultPart::ID]);
+        }
+
+        unset($parts[AgreementPart::ID]);
+
+        $rules = $parts->map(function ($part) {
+            return $part->rules();
+        })->collapse()->all();
+
+        $rules = array_merge($rules, $defaultPartRule);
+        XeFrontend::rule('join', $rules);
+
+        $isEmailDuplicated = $this->userHandler->users()->where('email', $userContract->getEmail())->exists();
+
+        $terms = [];
+        if (app('xe.config')->getVal('user.register.term_agree_type') !== UserRegisterHandler::TERM_AGREE_NOT) {
+            $terms = app('xe.terms')->fetchEnabled();
+        }
+
+        return XePresenter::make(
+            'register',
+            compact('registerConfig', 'parts', 'userContract', 'providerName', 'isEmailDuplicated', 'terms')
+        );
+    }
+
+    public function postRegister(Request $request)
+    {
+        $parts = $this->getRegisterParts($request);
+        $parts->each(function (RegisterFormPart $part) use ($request) {
+            if ($part::ID === DefaultPart::ID) {
+                $rule = $part->rules();
+                unset($rule['password']);
+
+                $this->validate($request, $rule);
+            } elseif ($part::ID === AgreementPart::ID) {
+                $requireTerms = app('xe.terms')->fetchRequireEnabled();
+                $termAgreeType = app('xe.config')->getVal('user.register.term_agree_type');
+
+                if ($requireTerms->count() > 0 && $termAgreeType !== UserRegisterHandler::TERM_AGREE_NOT) {
+                    $requireTermValidator = Validator::make(
+                        $request->all(),
+                        [],
+                        ['user_agree_terms.accepted' => xe_trans('xe::pleaseAcceptRequireTerms')]
+                    );
+
+                    $requireTermValidator->sometimes(
+                        'user_agree_terms',
+                        'accepted',
+                        function ($input) use ($requireTerms) {
+                            $userAgreeTerms = $input['user_agree_terms'] ?? [];
+
+                            foreach ($requireTerms as $requireTerm) {
+                                if (in_array($requireTerm->id, $userAgreeTerms) === false) {
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }
+                    )->validate();
+                }
+            } else {
+                $part->validate();
+            }
+        });
+
+        XeDB::beginTransaction();
+        try {
+            $user = $this->socialLoginHandler->registerUser($request->except('_token'));
+        } catch (ExistsAccountException $e) {
+            XeDB::rollback();
+            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredAccount'), 409, $e);
+        } catch (ExistsEmailException $e) {
+            XeDB::rollback();
+            $this->throwHttpException(xe_trans('social_login::alreadyRegisteredEmail'), 409, $e);
+        } catch (\Throwable $e) {
+            XeDB::rollback();
+            $this->throwHttpException($e->getMessage(), $e->getCode(), $e);
+        }
+        XeDB::commit();
+
+        return $this->loginUser($request, $user);
+    }
+
     /**
      * disconnect
      *
@@ -128,11 +346,11 @@ class ConnectController extends Controller
     public function disconnect($provider)
     {
         $user = auth()->user();
-        if (count(app('xe.social_login')->getConnected($user)) === 1 && !$user->password) {
+        if (count($this->socialLoginHandler->getConnected($user)) === 1 && !$user->password) {
             $this->throwHttpException(xe_trans('social_login::unableToDisconnect'), 406);
         }
 
-        app('xe.social_login')->disconnect($user, $provider);
+        $this->socialLoginHandler->disconnect($user, $provider);
 
         return redirect()->back()->with('alert', ['type' => 'success', 'message' => 'social_login::msgDisconnected']);
     }
@@ -158,8 +376,6 @@ class ConnectController extends Controller
         $providers = $this->getEnabledProviders();
 
         $config = app('xe.config')->get('user.register');
-
-        XePresenter::setSkinTargetId('social_login');
 
         return XePresenter::make('login', compact('providers', 'config'));
     }

@@ -37,6 +37,9 @@ use XeInterception;
  */
 class Plugin extends AbstractPlugin
 {
+    const REGISTER_TYPE_SIMPLE = 'simple';
+    const REGISTER_TYPE_STEP = 'step';
+
     /**
      * install
      *
@@ -71,6 +74,12 @@ class Plugin extends AbstractPlugin
 
             $socialLoginConfig = app('xe.config')->get('social_login');
             $socialLoginConfig->set('providers', $configProviders);
+            app('xe.config')->modify($socialLoginConfig);
+        }
+
+        if ($this->checkExistRegisterTypeConfig() === false) {
+            $socialLoginConfig = app('xe.config')->get('social_login');
+            $socialLoginConfig->set('registerType', self::REGISTER_TYPE_SIMPLE);
             app('xe.config')->modify($socialLoginConfig);
         }
     }
@@ -158,6 +167,10 @@ class Plugin extends AbstractPlugin
             return false;
         }
 
+        if ($this->checkExistRegisterTypeConfig() === false) {
+            return false;
+        }
+
         return parent::checkUpdated();
     }
 
@@ -173,6 +186,11 @@ class Plugin extends AbstractPlugin
         }
 
         return true;
+    }
+
+    private function checkExistRegisterTypeConfig()
+    {
+        return app('xe.config')->getVal('social_login.registerType', false);
     }
 
     /**

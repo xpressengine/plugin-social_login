@@ -112,11 +112,28 @@ class SettingsController extends Controller
      * @param Request $request request
      *
      * @return void
+     *
+     * @deprecated since 1.0.5 instead use updateConfig
      */
     public function updateSkin(Request $request)
     {
         if ($skin = XeSkin::get($request->get('skin'))) {
             XeSkin::assign('social_login', $skin);
         }
+    }
+
+    public function updateConfig(Request $request)
+    {
+        if ($skin = XeSkin::get($request->get('skin'))) {
+            XeSkin::assign('social_login', $skin);
+        }
+
+        if ($registerType = $request->get('registerType')) {
+            $socialLoginConfig = app('xe.config')->get('social_login');
+            $socialLoginConfig->set('registerType', $registerType);
+            app('xe.config')->modify($socialLoginConfig);
+        }
+
+        return redirect()->back();
     }
 }

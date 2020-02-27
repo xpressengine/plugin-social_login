@@ -15,6 +15,7 @@
 namespace Xpressengine\Plugins\SocialLogin\Skins;
 
 use Xpressengine\Skin\AbstractSkin;
+use Xpressengine\Skin\GenericSkin;
 
 /**
  * DefaultSkin
@@ -26,8 +27,10 @@ use Xpressengine\Skin\AbstractSkin;
  * @license     http://www.gnu.org/licenses/lgpl-3.0-standalone.html LGPL
  * @link        https://xpressengine.io
  */
-class DefaultSkin extends AbstractSkin
+class DefaultSkin extends GenericSkin
 {
+    protected static $path = 'social_login';
+
     /**
      * login
      *
