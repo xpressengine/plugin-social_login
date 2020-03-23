@@ -125,7 +125,8 @@ class SettingsController extends Controller
     public function updateConfig(Request $request)
     {
         if ($skin = XeSkin::get($request->get('skin'))) {
-            XeSkin::assign('social_login', $skin);
+            XeSkin::assign('social_login', $skin, 'desktop');
+            XeSkin::assign('social_login', $skin, 'mobile');
         }
 
         if ($registerType = $request->get('registerType')) {
