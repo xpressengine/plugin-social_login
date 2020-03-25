@@ -336,7 +336,7 @@ class ConnectController extends Controller
             $this->throwHttpException(xe_trans('social_login::alreadyRegisteredEmail'), 409, $e);
         } catch (\Throwable $e) {
             XeDB::rollback();
-            $this->throwHttpException($e->getMessage(), $e->getCode(), $e);
+            throw $e;
         }
         XeDB::commit();
 
