@@ -190,7 +190,10 @@ class ConnectController extends Controller
                 return $this->loginUser($request, $user);
             }
 
-            return $this->getRegisterForm($request, $userContract, $providerName);
+            $request->session()->put('userContract', $userContract);
+            $request->session()->put('provider', $providerName);
+            
+            return redirect()->route('social_login::get_register_form');
         }
 
         //소셜 로그인 연결
@@ -239,10 +242,13 @@ class ConnectController extends Controller
         return $parts;
     }
 
-    protected function getRegisterForm($request, $userContract, $providerName)
+    public function getRegisterForm(Request $request)
     {
         $registerConfig = app('xe.config')->get('user.register');
 
+        $userContract = $request->session()->get('userContract');
+        $providerName = $request->session()->get('provider');
+        
         $parts = $this->getRegisterParts($request);
 
         $defaultPartRule = [];
@@ -321,6 +327,7 @@ class ConnectController extends Controller
         XeDB::beginTransaction();
         try {
             $user = $this->socialLoginHandler->registerUser($request->except('_token'));
+            $request->session()->forget(['userContract', 'provider']);
         } catch (ExistsAccountException $e) {
             XeDB::rollback();
             $this->throwHttpException(xe_trans('social_login::alreadyRegisteredAccount'), 409, $e);

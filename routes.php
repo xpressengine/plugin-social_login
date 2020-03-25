@@ -35,6 +35,7 @@ Route::fixed('social_login', function () {
 
     Route::group(['prefix' => 'login'], function () {
         Route::get('/', ['as' => 'social_login::login', 'uses' => 'ConnectController@login']);
+        Route::get('/register', ['as' => 'social_login::get_register_form', 'uses' => 'ConnectController@getRegisterForm']);
         Route::post('/register', ['as' => 'social_login::register', 'uses' => 'ConnectController@postRegister']);
         Route::get('{provider}', ['as' => 'social_login::connect', 'uses' => 'ConnectController@connect']);
     });
