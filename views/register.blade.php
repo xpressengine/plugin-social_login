@@ -1,5 +1,6 @@
 {{ XeFrontend::css('assets/core/xe-ui/css/xe-ui-without-base.css')->load() }}
 {{ XeFrontend::js('assets/core/user/user_register.js')->load() }}
+{{ XeFrontend::js('assets/core/xe-ui-component/js/xe-page.js')->load() }}
 
 <div class="user user--signup">
     <h2 class="user__title">{{ xe_trans('xe::signUp') }}</h2>
