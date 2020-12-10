@@ -22,6 +22,7 @@ use XeLang;
 use Xpressengine\Plugin\AbstractPlugin;
 use Xpressengine\Plugins\SocialLogin\Providers\NaverProvider;
 use Xpressengine\Plugins\SocialLogin\Providers\KakaoProvider;
+use Xpressengine\Plugins\SocialLogin\Providers\AppleProvider;
 use Xpressengine\User\UserHandler;
 use XeInterception;
 
@@ -147,6 +148,7 @@ class Plugin extends AbstractPlugin
                 );
             });
         });
+
 		//02.02 추가
 		app()->resolving(Socialite::class, function ($socialite) {
             $socialite->extend('kakao', function ($app) {
@@ -159,11 +161,26 @@ class Plugin extends AbstractPlugin
                 );
             });
         });
+
+		// 2020.11.13 추가
+		app()->resolving(Socialite::class, function ($socialite) {
+            $socialite->extend('apple', function ($app) {
+                $config = $app['config']['services.apple'];
+
+                return new AppleProvider(
+                    $app['request'],
+                    $config['client_id'],
+                    $config['client_secret'],
+                    $config['redirect']
+                );
+            });
+        });
     }
 
     public function checkUpdated()
     {
         if ($this->checkAllProviderImported() === false) {
+            \Log::info('a');
             return false;
         }
 

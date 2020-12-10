@@ -31,4 +31,9 @@ return [
         'client_id' => env('SERVICE_GITHUB_CLIENTID', ''),
         'client_secret' => env('SERVICE_GITHUB_CLIENTSECRET', ''),
     ],
+    'apple' => [
+        'title' => 'social_login::apple',
+        'client_id' => env('SERVICE_APPLE_CLIENTID', ''),
+        'client_secret' => env('SERVICE_APPLE_CLIENTSECRET', ''),
+    ]
 ];
