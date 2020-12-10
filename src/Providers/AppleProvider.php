@@ -27,8 +27,7 @@ class AppleProvider extends AbstractProvider implements ProviderInterface
     }
 
     public function getAccessToken($code)
-    {//getAccessTokenResponse
-
+    {
         $query = $this->getTokenFields($code);
         $response = $this->getHttpClient()->post($this->getTokenUrl(), [
             'headers' => ['Accept' => 'application/json'],
@@ -36,11 +35,10 @@ class AppleProvider extends AbstractProvider implements ProviderInterface
         ]);
 
         return json_decode($response->getBody(), true);
-       
     }
+
     public function user()
     {
-        //Temporary fix to enable stateless
         $response = $this->getAccessTokenResponse($this->getCode());
 
         $user = $this->mapUserToObject($this->getUserByToken(
