@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'avatar_auto_upload' => true
+    'avatar_auto_upload' => false 
 ];
