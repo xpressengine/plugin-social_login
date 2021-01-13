@@ -16,6 +16,7 @@
 
 namespace Xpressengine\Plugins\SocialLogin\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use XeDB;
 use App\Http\Controllers\Controller;
@@ -33,6 +34,7 @@ use Xpressengine\User\Parts\DefaultPart;
 use Xpressengine\User\Parts\RegisterFormPart;
 use Xpressengine\User\UserHandler;
 use Xpressengine\User\UserRegisterHandler;
+use Illuminate\Http\UploadedFile;
 
 /**
  * ConnectController
@@ -145,6 +147,7 @@ class ConnectController extends Controller
 
         //로그인 시도
         if (auth()->check() === false) {
+
             if (app('xe.config')->getVal('user.register.joinable') === false) {
                 return redirect()->back()->with(
                     ['alert' => ['type' => 'danger', 'message' => xe_trans('xe::joinNotAllowed')]]
@@ -172,6 +175,7 @@ class ConnectController extends Controller
                     'token_secret' => $userContract->tokenSecret ?? ''
                 ];
 
+
                 XeDB::beginTransaction();
                 try {
                     $user = $this->socialLoginHandler->registerUser($userData);
@@ -192,7 +196,7 @@ class ConnectController extends Controller
 
             $request->session()->put('userContract', $userContract);
             $request->session()->put('provider', $providerName);
-            
+
             return redirect()->route('social_login::get_register_form');
         }
 
@@ -248,7 +252,7 @@ class ConnectController extends Controller
 
         $userContract = $request->session()->get('userContract');
         $providerName = $request->session()->get('provider');
-        
+
         $parts = $this->getRegisterParts($request);
 
         $defaultPartRule = [];
@@ -327,6 +331,36 @@ class ConnectController extends Controller
         XeDB::beginTransaction();
         try {
             $user = $this->socialLoginHandler->registerUser($request->except('_token'));
+
+            if(config('social_login.avatar_auto_upload')){
+                $contractAvatar = $request->get('contract_avatar', null);
+                if ($contractAvatar) {
+                    // url 을 파일로 변경
+                    $image_info = parse_url($contractAvatar);
+                    $image_name = basename($image_info['path']); // top_logo.png
+                    $sub_path = Carbon::now()->format('YmdHis');
+                    $image_path = storage_path('app/public/social_login');
+
+                    if (!is_dir($image_path)) {
+                        mkdir($image_path);
+                    }
+                    if (!is_dir($image_path .'/'. $sub_path)) {
+                        mkdir($image_path .'/'. $sub_path );
+                    }
+                    $full_path = $image_path .'/'. $sub_path .'/'. $image_name;
+                    file_put_contents($full_path, file_get_contents($contractAvatar));
+
+                    $avatar = new UploadedFile($full_path, $image_name);
+
+                    $userData = [
+                        'profile_img_file' => $avatar
+                    ];
+                    $this->userHandler->update($user, $userData);
+
+                    $this->rmdirAll($image_path .'/'. $sub_path);
+                }
+            }
+
             $request->session()->forget(['userContract', 'provider']);
         } catch (ExistsAccountException $e) {
             XeDB::rollback();
@@ -420,4 +454,21 @@ class ConnectController extends Controller
 
         throw $e;
     }
+
+    private function rmdirAll($deletePath)
+    {
+        $dirs = dir($deletePath);
+        while ( ($entry = $dirs->read()) !== false ) {
+            if(($entry != '.') && ($entry != '..')) {
+
+                if (is_dir($deletePath.'/'.$entry)) {
+                    $this->rmdirAll($deletePath.'/'.$entry);
+                } else {
+                    unlink($deletePath.'/'.$entry);
+                }
+            }
+        }
+        rmdir($deletePath);
+    }
+
 }
