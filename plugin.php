@@ -41,6 +41,7 @@ class Plugin extends AbstractPlugin
     const REGISTER_TYPE_SIMPLE = 'simple';
     const REGISTER_TYPE_STEP = 'step';
 
+
     /**
      * install
      *
