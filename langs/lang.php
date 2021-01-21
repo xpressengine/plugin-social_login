@@ -49,6 +49,10 @@ return [
         'ko' => '깃허브',
         'en' => 'Github',
     ],
+    'apple' => [
+        'ko' => '애플',
+        'en' => 'Apple',
+    ],
     'socialLoginProviderSetting' => [
         'ko' => '소셜로그인 프로바이더 설정',
         'en' => 'Social login provider setting',
