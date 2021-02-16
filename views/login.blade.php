@@ -54,7 +54,11 @@
             @foreach($providers as $provider => $info)
             <li class="auth-sns-user__item--{{ $provider }}">
                 <a href="{{ route('social_login::auth', ['provider' => $provider]) }}">
-                    {{ xe_trans('social_login::signInBy', ['provider' => xe_trans($info['title'])]) }}
+                    @if($provider === 'apple')
+                        {{ xe_trans('social_login::signInByApple', ['provider' => xe_trans($info['title'])]) }}
+                    @else
+                        {{ xe_trans('social_login::signInBy', ['provider' => xe_trans($info['title'])]) }}
+                    @endif
                 </a>
             </li>
             @endforeach

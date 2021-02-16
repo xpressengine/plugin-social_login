@@ -25,6 +25,10 @@ return [
         'ko' => ':provider 계정으로 로그인',
         'en' => 'Sign in by :provider',
     ],
+    'signInByApple' => [
+        'ko' => ':provider로 로그인',
+        'en' => 'Sign in by :provider',
+    ],
     'facebook' => [
         'ko' => '페이스북',
         'en' => 'Facebook',
