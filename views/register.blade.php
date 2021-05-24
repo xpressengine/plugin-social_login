@@ -13,7 +13,7 @@
         <input type="hidden" name="token" value="{{ Request::old('token', $userContract->token) }}">
         <input type="hidden" name="token_secret" value="{{ Request::old('token_secret', $userContract->tokenSecret ?? '') }}">
         <input type="hidden" name="contract_email" value="{{ Request::old('contract_email', $userContract->getEmail()) }}">
-
+        <input type="hidden" name="contract_avatar" value="{{ Request::old('contract_avatar', $userContract->getAvatar()) }}">
         <fieldset>
             <legend>{{ xe_trans('xe::signUp') }}</legend>
 

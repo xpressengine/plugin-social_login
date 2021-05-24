@@ -111,6 +111,8 @@ class Plugin extends AbstractPlugin
      */
     public function register()
     {
+        $this->config();
+
         app()->singleton(Handler::class, function ($app) {
             $proxyHandler = XeInterception::proxy(Handler::class, 'SocialLoginHandler');
             $handler = new $proxyHandler($app[Socialite::class], $app['xe.user'], $app['xe.db'], $app['xe.config']);
@@ -175,6 +177,13 @@ class Plugin extends AbstractPlugin
                 );
             });
         });
+    }
+
+    public function config()
+    {
+        $key = 'social_login';
+        $config = app('config')->get($key, []);
+        app('config')->set($key, array_merge(require __DIR__.'/config/config.php', $config));
     }
 
     public function checkUpdated()

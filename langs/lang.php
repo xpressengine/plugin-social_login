@@ -25,6 +25,10 @@ return [
         'ko' => ':provider 계정으로 로그인',
         'en' => 'Sign in by :provider',
     ],
+    'signInByApple' => [
+        'ko' => ':provider로 로그인',
+        'en' => 'Sign in by :provider',
+    ],
     'facebook' => [
         'ko' => '페이스북',
         'en' => 'Facebook',
@@ -48,6 +52,10 @@ return [
     'github' => [
         'ko' => '깃허브',
         'en' => 'Github',
+    ],
+    'apple' => [
+        'ko' => 'Apple',
+        'en' => 'Apple',
     ],
     'socialLoginProviderSetting' => [
         'ko' => '소셜로그인 프로바이더 설정',
