@@ -117,4 +117,11 @@
             $(item).trigger('focusout')
         })
     })
+    if ('{{ $providerName }}' == "apple") {
+        $("#f-name").change(function(){
+            const nickname = document.getElementById('f-name').value;
+            document.getElementById('f-email').value = nickname + "@apple.com";
+            document.getElementById('f-login_id').value = nickname;
+        });
+    }
 </script>

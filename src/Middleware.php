@@ -42,7 +42,8 @@ class Middleware
     {
         if ($request->routeIs('login') &&
             in_array('GET', $request->route()->methods()) &&
-            $request->get('by') !== 'email'
+//            $request->get('by') !== 'email'
+            $request->has('by') === false
         ) {
             return redirect()->route('social_login::login', $request->query());
         }

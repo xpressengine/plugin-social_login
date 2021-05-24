@@ -28,6 +28,8 @@ Route::settings('social_login', function () {
     Route::put('skin', ['as' => 'social_login::settings.skin.update', 'uses' => 'SettingsController@updateSkin']);
 });
 
+\App\Http\Middleware\ExceptAppendableVerifyCsrfToken::setExcept('/plugin/social_login/login/apple');
+
 Route::fixed('social_login', function () {
     Route::group(['prefix' => 'auth'], function () {
         Route::get('{provider}', ['as' => 'social_login::auth', 'uses' => 'ConnectController@auth']);
@@ -37,7 +39,7 @@ Route::fixed('social_login', function () {
         Route::get('/', ['as' => 'social_login::login', 'uses' => 'ConnectController@login']);
         Route::get('/register', ['as' => 'social_login::get_register_form', 'uses' => 'ConnectController@getRegisterForm']);
         Route::post('/register', ['as' => 'social_login::register', 'uses' => 'ConnectController@postRegister']);
-        Route::get('{provider}', ['as' => 'social_login::connect', 'uses' => 'ConnectController@connect']);
+        Route::match(['get', 'post'], '{provider}', ['as' => 'social_login::connect', 'uses' => 'ConnectController@connect']);
     });
     // register each provider's connect page
     Route::group(['prefix' => 'disconnect', 'middleware' => 'auth'], function () {
