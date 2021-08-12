@@ -35,5 +35,10 @@ return [
         'title' => 'social_login::apple',
         'client_id' => env('SERVICE_APPLE_CLIENTID', ''),
         'client_secret' => env('SERVICE_APPLE_CLIENTSECRET', ''),
+    ],
+    'soundcloud' => [
+        'title' => 'social_login::soundcloud',
+        'client_id' => env('SERVICE_SOUNDCLOUD_CLIENTID', ''),
+        'client_secret' => env('SERVICE_SOUNDCLOUD_CLIENTSECRET', ''),
     ]
 ];
