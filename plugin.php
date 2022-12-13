@@ -25,6 +25,7 @@ use Xpressengine\Plugins\SocialLogin\Providers\KakaoProvider;
 use Xpressengine\Plugins\SocialLogin\Providers\AppleProvider;
 use Xpressengine\User\UserHandler;
 use XeInterception;
+use Xpressengine\Plugins\SocialLogin\Providers\SoundcloudProvider;
 
 /**
  * Plugin
@@ -170,6 +171,20 @@ class Plugin extends AbstractPlugin
                 $config = $app['config']['services.apple'];
 
                 return new AppleProvider(
+                    $app['request'],
+                    $config['client_id'],
+                    $config['client_secret'],
+                    $config['redirect']
+                );
+            });
+        });
+
+        // 2021.08.12 추가
+        app()->resolving(Socialite::class, function ($socialite) {
+            $socialite->extend('soundcloud', function ($app) {
+                $config = $app['config']['services.soundcloud'];
+
+                return new SoundcloudProvider(
                     $app['request'],
                     $config['client_id'],
                     $config['client_secret'],
