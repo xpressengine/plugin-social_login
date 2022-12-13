@@ -54,7 +54,7 @@ return [
         'en' => 'Github',
     ],
     'apple' => [
-        'ko' => '애플',
+        'ko' => 'Apple',
         'en' => 'Apple',
     ],
     'socialLoginProviderSetting' => [
